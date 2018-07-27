@@ -35,6 +35,8 @@ public class DataController extends Application {
 
     public void initTable() {
         try {
+            TableColumn idCol = new TableColumn("id");
+            idCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("id"));
             TableColumn timeStampCol = new TableColumn("Timestamp");
             timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
             TableColumn geneCol = new TableColumn("Gene");
@@ -56,7 +58,7 @@ public class DataController extends Application {
                     DataEntry entry = (DataEntry) event.getRowValue();
                     Boolean classified = (Boolean) event.getNewValue();
                     try {
-                        DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified);
+                        DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified, entry.getId());
                     } catch (SQLException | ClassNotFoundException e) {
                         System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
                         e.printStackTrace();
@@ -65,7 +67,7 @@ public class DataController extends Application {
             });
 
 
-            table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
+            table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol, idCol);
             data = DAO.searchEntries();
             table.setItems(data);
 
