@@ -110,6 +110,7 @@ public class DataController extends Application {
     }
 
     public void initTable() {
+<<<<<<< HEAD
         TableColumn timeStampCol = new TableColumn("Timestamp");
         timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
         TableColumn geneCol = new TableColumn("Gene");
@@ -134,6 +135,37 @@ public class DataController extends Application {
                 } catch (SQLException | ClassNotFoundException e) {
                     System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
                     e.printStackTrace();
+=======
+        try {
+            TableColumn idCol = new TableColumn("id");
+            idCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("id"));
+            TableColumn timeStampCol = new TableColumn("Timestamp");
+            timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
+            TableColumn geneCol = new TableColumn("Gene");
+            geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
+            TableColumn emailCol = new TableColumn("Email");
+            emailCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("email"));
+            TableColumn sampleCol = new TableColumn("Sample");
+            sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
+            TableColumn controlCol = new TableColumn("Control");
+            controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
+
+            TableColumn classifiedCol = new TableColumn("Classified");
+            classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("classified"));
+            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
+
+            classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+                @Override
+                public void handle(TableColumn.CellEditEvent event) {
+                    DataEntry entry = (DataEntry) event.getRowValue();
+                    Boolean classified = (Boolean) event.getNewValue();
+                    try {
+                        DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified, entry.getId());
+                    } catch (SQLException | ClassNotFoundException e) {
+                        System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
+                        e.printStackTrace();
+                    }
+>>>>>>> origin/master
                 }
             }
         });
@@ -144,8 +176,12 @@ public class DataController extends Application {
         table.setItems(data);
     }
 
+<<<<<<< HEAD
     private void updateData() {
         try {
+=======
+            table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol, idCol);
+>>>>>>> origin/master
             data = DAO.searchEntries();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("An error occurred while updating table data: " + e);
