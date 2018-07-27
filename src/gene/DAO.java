@@ -7,15 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DAO {
-    public static DataEntry searchEntry(String gene) throws SQLException, ClassNotFoundException {
-        String sql = "SELECT * FROM genes WHERE gene = " + gene;
+    public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
+        String sql = "select * from genes where " + field + " like '%" + value + "%' order by email, gene";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
-            return getEntryFromResultSet(rs);
+            return getEntriesFromResultSet(rs);
 
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while searching the gene: " + gene + ".");
+            System.out.println("An error occurred while searching " + value + " under column " + field + ".");
             throw e;
         }
     }
@@ -37,7 +37,7 @@ public class DAO {
     }
 
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from genes";
+        String sql = "select * from genes order by email, gene";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);

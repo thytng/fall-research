@@ -9,10 +9,10 @@ public class DBUtil {
     private static Connection conn;
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/fall2018?" +
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/fall2018?useSSL=false" +
             "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "password";
+    private static final String DB_PASS = "pass";
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);
@@ -40,7 +40,6 @@ public class DBUtil {
         Statement stmt = null;
         ResultSet rs = null;
         CachedRowSet crs = null;
-        System.out.println("Query statement: " + sql + "\n");
         try {
             connect();
 
@@ -67,17 +66,17 @@ public class DBUtil {
 
     public static void executeUpdate(String sql) throws SQLException, ClassNotFoundException {
         Statement stmt = null;
-        System.out.println("Update statement: " + sql + "\n");
+        System.out.println("Update statement: " + sql + ".");
         try {
             connect();
             stmt = conn.createStatement();
             stmt.executeUpdate(sql);
             conn.commit();
-            System.out.println("Update committed.");
+            System.out.println("Update committed. \n");
 
         } catch (SQLException e) {
             System.out.println("Problem occurred at executeUpdate operation: " + e);
-            System.out.println("Changes are NOT committed.");
+            System.out.println("Changes are NOT committed. \n");
             conn.rollback();
             throw e;
         } finally {
