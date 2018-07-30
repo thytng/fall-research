@@ -9,22 +9,22 @@ public class DBUtil {
     private static Connection conn;
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-<<<<<<< HEAD
     private static final String DB_URL = "jdbc:mysql://localhost:3306/fall2018?useSSL=false" +
             "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "pass";
-=======
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/mysql";
-    private static final String DB_USER = "root";
-    private static final String DB_PASS = "Swa!Exa4";
->>>>>>> origin/master
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);
 
         conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
         conn.setAutoCommit(false);
+    }
+
+    public static void getConnection() throws SQLException, ClassNotFoundException {
+        if (conn == null || conn.isClosed()) {
+            connect();
+        }
     }
 
     public static void disconnect() throws SQLException {
@@ -47,7 +47,7 @@ public class DBUtil {
         ResultSet rs = null;
         CachedRowSet crs = null;
         try {
-            connect();
+            getConnection();
 
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
@@ -57,16 +57,8 @@ public class DBUtil {
         } catch (SQLException e) {
             System.out.println("Problem occurred at executeQuery operation: " + e);
             throw e;
-
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            disconnect();
         }
+
         return crs;
     }
 
@@ -74,7 +66,7 @@ public class DBUtil {
         Statement stmt = null;
         System.out.println("Update statement: " + sql + ".");
         try {
-            connect();
+            getConnection();
             stmt = conn.createStatement();
             stmt.executeUpdate(sql);
             conn.commit();
@@ -85,11 +77,23 @@ public class DBUtil {
             System.out.println("Changes are NOT committed. \n");
             conn.rollback();
             throw e;
-        } finally {
-            if (stmt != null) {
-                stmt.close();
+        }
+    }
+
+    public static void commitChanges() {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.commit();
             }
-            disconnect();
+        } catch (SQLException e) {
+            System.out.println("Problem occurred at commitChanges operation: " + e);
+            System.out.println("Changes are NOT committed. \n");
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                System.out.println("Problem occurred at rollback.");
+                ex.printStackTrace();
+            }
         }
     }
 }
