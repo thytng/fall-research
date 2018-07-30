@@ -11,7 +11,6 @@ public class DataEntry {
     private StringProperty sample;
     private StringProperty control;
     private BooleanProperty classified;
-    private IntegerProperty id;
 
     public DataEntry() {
         this.timestamp = new SimpleObjectProperty<>();
@@ -20,48 +19,88 @@ public class DataEntry {
         this.sample = new SimpleStringProperty();
         this.control = new SimpleStringProperty();
         this.classified = new SimpleBooleanProperty();
-        this.id = new SimpleIntegerProperty();
     }
 
-    public Timestamp getTimestamp() { return timestamp.get(); }
+    public Timestamp getTimestamp() {
+        return timestamp.get();
+    }
 
-    public SimpleObjectProperty<Timestamp> timestampProperty() { return timestamp; }
+    public SimpleObjectProperty<Timestamp> timestampProperty() {
+        return timestamp;
+    }
 
-    public void setTimestamp(Timestamp timestamp) { this.timestamp.set(timestamp); }
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp.set(timestamp);
+    }
 
-    public String getGene() { return gene.get(); }
+    public String getGene() {
+        return gene.get();
+    }
 
-    public StringProperty geneProperty() { return gene; }
+    public StringProperty geneProperty() {
+        return gene;
+    }
 
-    public void setGene(String gene) { this.gene.set(gene); }
+    public void setGene(String gene) {
+        this.gene.set(gene);
+    }
 
-    public String getEmail() { return email.get(); }
+    public String getEmail() {
+        return email.get();
+    }
 
-    public StringProperty emailProperty() { return email; }
+    public StringProperty emailProperty() {
+        return email;
+    }
 
-    public void setEmail(String email) { this.email.set(email); }
+    public void setEmail(String email) {
+        this.email.set(email);
+    }
 
-    public String getSample() { return sample.get(); }
+    public String getSample() {
+        return sample.get();
+    }
 
-    public StringProperty sampleProperty() { return sample; }
+    public StringProperty sampleProperty() {
+        return sample;
+    }
 
-    public void setSample(String sample) { this.sample.set(sample); }
+    public void setSample(String sample) {
+        this.sample.set(sample);
+    }
 
-    public String getControl() {  return control.get(); }
+    public String getControl() {
+        return control.get();
+    }
 
-    public StringProperty controlProperty() { return control; }
+    public StringProperty controlProperty() {
+        return control;
+    }
 
-    public void setControl(String control) { this.control.set(control); }
+    public void setControl(String control) {
+        this.control.set(control);
+    }
 
-    public boolean isClassified() { return classified.get(); }
+    public boolean isClassified() {
+        return classified.get();
+    }
 
-    public BooleanProperty classifiedProperty() { return classified; }
+    public BooleanProperty classifiedProperty() {
+        return classified;
+    }
 
-    public void setClassified(boolean classified) { this.classified.set(classified); }
+    public void setClassified(boolean classified) {
+        this.classified.set(classified);
+    }
 
-    public IntegerProperty idProperty() { return id; }
-
-    public void setId(int id) { this.id.set(id); }
-
-    public int getId() { return id.get(); }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || ! (obj instanceof  DataEntry)) {
+            return false;
+        }
+        DataEntry other = (DataEntry) obj;
+        return getTimestamp().equals(other.getTimestamp()) && getGene().equals(other.getGene()) &&
+                getEmail().equals(other.getEmail()) && getControl().equals(other.getControl()) &&
+                getSample().equals(other.getSample()) && (isClassified() == other.isClassified());
+    }
 }

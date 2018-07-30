@@ -31,7 +31,6 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
-            entry.setId(rs.getInt("id"));
         }
 
         return entry;
@@ -59,14 +58,13 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
-            entry.setId(rs.getInt("id"));
             entries.add(entry);
         }
         return entries;
     }
 
-    public static void updateEntryStatus (String gene, String email, boolean classified, int id) throws SQLException, ClassNotFoundException {
-        String sql = "update genes set classified = " + classified + " where id=" + id + " and gene = '" + gene + "' and email = '" + email + "'";
+    public static void updateEntryStatus (String gene, String email, boolean classified) throws SQLException, ClassNotFoundException {
+        String sql = "update genes set classified = " + classified + " where gene = '" + gene + "' and email = '" + email + "'";
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
