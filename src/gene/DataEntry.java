@@ -11,6 +11,10 @@ public class DataEntry {
     private StringProperty sample;
     private StringProperty control;
     private BooleanProperty classified;
+    private IntegerProperty id;
+    private boolean modified;
+    private boolean originalClass;
+    private DataEntry ogStats;
 
     public DataEntry() {
         this.timestamp = new SimpleObjectProperty<>();
@@ -19,6 +23,20 @@ public class DataEntry {
         this.sample = new SimpleStringProperty();
         this.control = new SimpleStringProperty();
         this.classified = new SimpleBooleanProperty();
+        this.id = new SimpleIntegerProperty();
+
+        modified = false;
+    }
+
+    public void addOgStats() {
+        ogStats = new DataEntry();
+        ogStats.setTimestamp(this.getTimestamp());
+        ogStats.setGene(this.getGene());
+        ogStats.setEmail(this.getEmail());
+        ogStats.setSample(this.getSample());
+        ogStats.setControl(this.getControl());
+        ogStats.setClassified(originalClass);
+        ogStats.setId(this.getId());
     }
 
     public Timestamp getTimestamp() {
@@ -93,6 +111,17 @@ public class DataEntry {
         this.classified.set(classified);
     }
 
+    public Integer getId() {
+        return id.get();
+    }
+
+    public void setId(int id) {
+        this.id.setValue(id);
+    }
+
+    public boolean getOriginalClass() { return originalClass; }
+    public void setOriginalClass(boolean originalClass) { this.originalClass = originalClass; }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null || ! (obj instanceof  DataEntry)) {
@@ -103,4 +132,8 @@ public class DataEntry {
                 getEmail().equals(other.getEmail()) && getControl().equals(other.getControl()) &&
                 getSample().equals(other.getSample()) && (isClassified() == other.isClassified());
     }
+
+    public boolean isModified() { return modified; }
+    public void switchModified() { modified = !modified; }
+    public DataEntry getOg() { return ogStats; }
 }

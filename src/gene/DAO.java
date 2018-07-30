@@ -31,22 +31,24 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
+            entry.setOriginalClass(rs.getBoolean("classified"));
+            entry.setId(rs.getInt("id"));
         }
 
         return entry;
     }
 
-    public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from genes order by email, gene";
-
-        try {
-            ResultSet rs = DBUtil.executeQuery(sql);
-            return getEntriesFromResultSet(rs);
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while searching.");
-            throw e;
-        }
-    }
+//    public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
+//        String sql = "select * from genes order by email, gene";
+//
+//        try {
+//            ResultSet rs = DBUtil.executeQuery(sql);
+//            return getEntriesFromResultSet(rs);
+//        } catch (SQLException | ClassNotFoundException e) {
+//            System.out.println("An error occurred while searching.");
+//            throw e;
+//        }
+//    }
 
     private static ObservableList<DataEntry> getEntriesFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
@@ -58,17 +60,19 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
+            entry.setOriginalClass(rs.getBoolean("classified"));
             entries.add(entry);
         }
         return entries;
     }
 
-    public static void updateEntryStatus (String gene, String email, boolean classified) throws SQLException, ClassNotFoundException {
-        String sql = "update genes set classified = " + classified + " where gene = '" + gene + "' and email = '" + email + "'";
+    public static void updateEntryStatus (int id, boolean classified, PaginatingDataHandler handler) throws SQLException, ClassNotFoundException {
+        String sql = "update genes set classified = " + classified + " where id = '" + id  + "';";
         try {
             DBUtil.executeUpdate(sql);
+            handler.getAllData().get(id).setClassified(classified);
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while updating gene: " + gene + ".");
+            System.out.println("An error occurred while updating id: " + id + ".");
             throw e;
         }
     }
