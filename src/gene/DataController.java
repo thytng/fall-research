@@ -13,7 +13,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -25,83 +24,84 @@ public class DataController extends Application {
     private ObservableList<DataEntry> originalData;
     private ObservableList<DataEntry> currentData;
     private ObservableList<DataEntry> searchData;
-    private TableView<DataEntry> table = new TableView<>();
-    private VBox vBox = new VBox(table);
-
     private FilteredList<DataEntry> filteredData;
-    ChoiceBox<String> choiceBox = new ChoiceBox<>();
-    TextField textField = new TextField();
-    GridPane gridPane = new GridPane();
 
-    Button commitButton = new Button();
+    private Scene mainScene = new Scene(borderPane);
+    private TableView<DataEntry> mainTable = new TableView<>();
 
-    public void structureCommitView() {
-        commitButton.setText("Commit Changes");
-        commitButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                DBUtil.commitChanges();
-            }
-        });
-        gridPane.add(commitButton, 0, 1);
-    }
+    private ChoiceBox<String> choiceBox = new ChoiceBox<>();
+    private TextField searchField = new TextField();
+    private GridPane sideBar = new GridPane();
 
-    public void structureTableView() {
-        initTable();
-        table.setEditable(true);
-        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        vBox.setSpacing(5);
-        vBox.setPadding(new Insets(10, 0, 0, 10));
+    private Button compareButton;
+    private Button commitButton;
 
-        borderPane.setCenter(vBox);
-    }
+    private FilteredList<DataEntry> unchangedEntries;
+    private FilteredList<DataEntry> changedEntries;
+    private TableView<DataEntry> unchangedTable = createEmptyTable(false);
+    private TableView<DataEntry> changedTable = createEmptyTable(false);
+    private Stage compareStage = new Stage();
+    private BorderPane comparePane = new BorderPane();
+    private Scene compareScene = new Scene(comparePane);
 
-    public void structureSearchViewSQL() {
-        choiceBox.getItems().addAll("Email", "Gene");
-        choiceBox.setValue("Email");
+    public void structureMainTableView() {
+        mainTable = createEmptyTable(true);
+        currentData = getUpdatedData();
+//            filteredData = new FilteredList<DataEntry>(currentData, p -> true);
+        mainTable.setItems(currentData);
+        mainTable.setEditable(true);
+        mainTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
-        textField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                String field = choiceBox.getValue().equals("Email") ? "email" : "gene";
-                try {
-                    searchData = DAO.searchEntry(field, textField.getText().toLowerCase());
-                    table.setItems(searchData);
-                } catch (SQLException | ClassNotFoundException e) {
-
-                }
-            }
-        });
-
-        choiceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) ->
-        {
-            if (newVal != null) {
-                updateData();
-                table.setItems(currentData);
-                textField.clear();
-            }
-        });
-
-        gridPane.add(choiceBox, 0, 0);
-        gridPane.add(textField, 1, 0);
-        gridPane.setHgap(10);
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-        borderPane.setLeft(gridPane);
+        borderPane.setCenter(mainTable);
     }
 
     public void structureSearchView() {
         choiceBox.getItems().addAll("Email", "Gene");
         choiceBox.setValue("Email");
 
-        textField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+        searchField.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                String field = choiceBox.getValue().equals("Email") ? "email" : "gene";
+                try {
+                    searchData = DAO.searchEntry(field, searchField.getText().toLowerCase());
+                    mainTable.setItems(searchData);
+                } catch (SQLException | ClassNotFoundException e) {
+
+                }
+            }
+        });
+
+        choiceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) ->
+        {
+            if (newVal != null) {
+                currentData = getUpdatedData();
+                mainTable.setItems(currentData);
+                searchField.clear();
+            }
+        });
+
+        sideBar.add(choiceBox, 0, 0);
+        sideBar.add(searchField, 1, 0);
+        sideBar.setHgap(10);
+        sideBar.setVgap(10);
+        sideBar.setPadding(new Insets(0, 10, 0, 10));
+        borderPane.setLeft(sideBar);
+    }
+
+    public void structureSearchViewFL() {
+        choiceBox.getItems().addAll("Email", "Gene");
+        choiceBox.setValue("Email");
+
+        searchField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 switch (choiceBox.getValue()) {
                     case "Email":
-                        filteredData.setPredicate(p -> p.getEmail().toLowerCase().contains(textField.getText().toLowerCase().trim()));
+                        filteredData.setPredicate(p -> p.getEmail().toLowerCase().contains(searchField.getText().toLowerCase().trim()));
                         break;
                     case "Gene":
-                        filteredData.setPredicate(p -> p.getGene().toLowerCase().contains(textField.getText().toLowerCase().trim()));
+                        filteredData.setPredicate(p -> p.getGene().toLowerCase().contains(searchField.getText().toLowerCase().trim()));
                         break;
                 }
             }
@@ -110,78 +110,59 @@ public class DataController extends Application {
         choiceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) ->
         {
             if (newVal != null) {
-                textField.clear();
+                searchField.clear();
                 filteredData.setPredicate(p -> true);
             }
         });
 
-        gridPane.add(choiceBox, 0, 0);
-        gridPane.add(textField, 1, 0);
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-        borderPane.setLeft(gridPane);
+        sideBar.add(choiceBox, 0, 0);
+        sideBar.add(searchField, 1, 0);
+        sideBar.setPadding(new Insets(10, 10, 10, 10));
+        borderPane.setLeft(sideBar);
     }
 
-    public void initTable() {
-        TableColumn timeStampCol = new TableColumn("Timestamp");
-        timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
-        TableColumn geneCol = new TableColumn("Gene");
-        geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
-        TableColumn emailCol = new TableColumn("Email");
-        emailCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("email"));
-        TableColumn sampleCol = new TableColumn("Sample");
-        sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
-        TableColumn controlCol = new TableColumn("Control");
-        controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
-
-        TableColumn classifiedCol = new TableColumn("Classified");
-        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("classified"));
-        classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
-        classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+    public void structureCompareView() {
+        compareButton = new Button("See Changes");
+        compareButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(TableColumn.CellEditEvent event) {
-                DataEntry entry = (DataEntry) event.getRowValue();
-                Boolean classified = (Boolean) event.getNewValue();
-                try {
-                    DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified);
-                } catch (SQLException | ClassNotFoundException e) {
-                    System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
-                    e.printStackTrace();
-                }
+            public void handle(MouseEvent event) {
+                currentData = getUpdatedData();
+
+                // DATA POINTS THAT WERE CHANGED (ORIGINAL VERSION)
+                unchangedEntries = originalData.filtered(p -> !currentData.contains(p));
+                unchangedTable.setItems(unchangedEntries);
+
+                // DATA POINTS THAT WERE CHANGED (MODIFIED VERSION)
+                changedEntries = currentData.filtered(p -> !originalData.contains(p));
+                changedTable.setItems(changedEntries);
+
+                comparePane.setLeft(unchangedTable);
+                comparePane.setRight(changedTable);
+                compareStage.setScene(compareScene);
+                mainTable.setEditable(false);
+                compareStage.showAndWait();
+                mainTable.setEditable(true);
             }
         });
 
-        table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
-        updateData();
-//            filteredData = new FilteredList<DataEntry>(currentData, p -> true);
-        table.setItems(currentData);
+        sideBar.add(compareButton, 0, 1);
+        currentData = getUpdatedData();
     }
 
-    private void updateData() {
-        try {
-            currentData = DAO.searchEntries();
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while updating table currentData: " + e);
-        }
+    public void structureCommitView() {
+        commitButton = new Button("Commit");
+        commitButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                DBUtil.commitChanges();
+                originalData = getUpdatedData();
+            }
+        });
+        sideBar.add(commitButton, 0, 2);
     }
 
-
-    public ObservableList<DataEntry> getCurrentData() {
-        return currentData;
-    }
-
-    public TableView<DataEntry> getTable() {
-        return table;
-    }
-
-    public ObservableList<DataEntry> compareChanges() {
-        updateData();
-        FilteredList<DataEntry> unchangedEntries = this.originalData.filtered(p -> !currentData.contains(p));
-        Stage changedStage = new Stage();
-        BorderPane changedPane = new BorderPane();
-        Scene changedScene = new Scene(changedPane);
-
-        // DATA POINTS THAT WERE CHANGED
-        TableView<DataEntry> originalTable = new TableView<>();
+    private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
+        TableView<DataEntry> table = new TableView<>();
         TableColumn timeStampCol = new TableColumn("Timestamp");
         timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
         TableColumn geneCol = new TableColumn("Gene");
@@ -192,77 +173,53 @@ public class DataController extends Application {
         sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
         TableColumn controlCol = new TableColumn("Control");
         controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
+
         TableColumn classifiedCol = new TableColumn("Classified");
         classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("classified"));
+        if (modifyStatus) {
+            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
+            classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+                @Override
+                public void handle(TableColumn.CellEditEvent event) {
+                    DataEntry entry = (DataEntry) event.getRowValue();
+                    Boolean classified = (Boolean) event.getNewValue();
+                    try {
+                        DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified);
+                    } catch (SQLException | ClassNotFoundException e) {
+                        System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
+        return table;
+    }
 
-        originalTable.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
-        originalTable.setItems(unchangedEntries);
-
-        // REMATCHING
-        TableView<DataEntry> idkwhatTable = new TableView<>();
-        FilteredList<DataEntry> changedEntries = currentData.filtered(p -> !originalData.contains(p));
-        TableColumn timeStampCol1 = new TableColumn("Timestamp");
-        timeStampCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
-        TableColumn geneCol1 = new TableColumn("Gene");
-        geneCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
-        TableColumn emailCol1 = new TableColumn("Email");
-        emailCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("email"));
-        TableColumn sampleCol1 = new TableColumn("Sample");
-        sampleCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
-        TableColumn controlCol1 = new TableColumn("Control");
-        controlCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
-        TableColumn classifiedCol1 = new TableColumn("Classified");
-        classifiedCol1.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("classified"));
-
-        idkwhatTable.getColumns().addAll(timeStampCol1, geneCol1, emailCol1, sampleCol1, controlCol1, classifiedCol1);
-        idkwhatTable.setItems(changedEntries);
-
-        changedPane.setLeft(originalTable);
-        changedPane.setRight(idkwhatTable);
-        changedStage.setScene(changedScene);
-        changedStage.show();
-        return unchangedEntries;
+    private ObservableList<DataEntry> getUpdatedData() {
+        try {
+            return DAO.searchEntries();
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("An error occurred while updating mainTable currentData: " + e);
+        }
+        return null;
     }
 
     public void start(Stage stage) {
         try {
             originalData = DAO.searchEntries();
         } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
             System.exit(1);
         }
-        structureTableView();
-        structureSearchViewSQL();
+        structureMainTableView();
+        structureSearchView();
+        structureCompareView();
+        structureCommitView();
 
-        borderPane.setPadding(new Insets(0, 10, 10, 0));
+        borderPane.setPadding(new Insets(10, 10, 10, 10));
 
-        Button changedButton = new Button("See changes");
-        gridPane.add(changedButton, 0, 1);
-        changedButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                ObservableList<DataEntry> entries = compareChanges();
-                for (DataEntry e : entries) {
-                    System.out.println(e.getGene());
-                    System.out.println(e.isClassified());
-                }
-
-                System.out.println("Original");
-                for (DataEntry e : originalData) {
-                    System.out.println(e.getGene());
-                    System.out.println(e.isClassified());
-                }
-
-                System.out.println("Current");
-                for (DataEntry e : currentData) {
-                    System.out.println(e.getGene());
-                    System.out.println(e.isClassified());
-                }
-            }
-        });
-
-        Scene scene = new Scene(borderPane);
-
-        stage.setScene(scene);
+        stage.setScene(mainScene);
         stage.setMaximized(true);
         stage.show();
     }

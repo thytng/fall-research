@@ -69,8 +69,7 @@ public class DBUtil {
             getConnection();
             stmt = conn.createStatement();
             stmt.executeUpdate(sql);
-            conn.commit();
-            System.out.println("Update committed. \n");
+//            conn.commit();
 
         } catch (SQLException e) {
             System.out.println("Problem occurred at executeUpdate operation: " + e);
@@ -84,6 +83,7 @@ public class DBUtil {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.commit();
+                System.out.println("Update committed. \n");
             }
         } catch (SQLException e) {
             System.out.println("Problem occurred at commitChanges operation: " + e);
