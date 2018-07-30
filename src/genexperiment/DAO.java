@@ -1,4 +1,4 @@
-package gene;
+package genexperiment;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -7,15 +7,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DAO {
-    public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
-        String sql = "select * from genes where " + field + " like '%" + value + "%' order by email, gene";
+    public static DataEntry searchEntry(String gene) throws SQLException, ClassNotFoundException {
+        String sql = "SELECT * FROM genes WHERE gene = " + gene;
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
-            return getEntriesFromResultSet(rs);
+            return getEntryFromResultSet(rs);
 
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while searching " + value + " under column " + field + ".");
+            System.out.println("An error occurred while searching the gene: " + gene + ".");
             throw e;
         }
     }
@@ -31,13 +31,14 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
+            entry.setId(rs.getInt("id"));
         }
 
         return entry;
     }
 
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from genes order by email, gene";
+        String sql = "select * from genes";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -58,13 +59,14 @@ public class DAO {
             entry.setSample(rs.getString("sample"));
             entry.setControl(rs.getString("control"));
             entry.setClassified(rs.getBoolean("classified"));
+            entry.setId(rs.getInt("id"));
             entries.add(entry);
         }
         return entries;
     }
 
-    public static void updateEntryStatus (String gene, String email, boolean classified) throws SQLException, ClassNotFoundException {
-        String sql = "update genes set classified = " + classified + " where gene = '" + gene + "' and email = '" + email + "'";
+    public static void updateEntryStatus (String gene, String email, boolean classified, int id) throws SQLException, ClassNotFoundException {
+        String sql = "update genes set classified = " + classified + " where id=" + id + " and gene = '" + gene + "' and email = '" + email + "'";
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
