@@ -126,13 +126,6 @@ public class PaginatingDataHandler {
                 System.out.println("Condition hit");
                 dataByPage.put(page, newPageData);
 
-                if (dataByPage.size() >= numPages) {
-                    try{
-                        conn.close(); //Close the connection if we know we've already loaded all entries.
-                    } catch (SQLException se) {
-                        se.printStackTrace();
-                    }
-                }
             }
         }
     }
