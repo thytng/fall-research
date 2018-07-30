@@ -33,7 +33,7 @@ public class DataController extends Application {
     @Override
     public void start(final Stage stage) throws Exception {
 
-        handler = new PaginatingDataHandler("genes"); //TODO:
+        handler = new PaginatingDataHandler("genes");
 
         Pagination pagination = new Pagination((handler.getNumPages()), 0);
         pagination.setPageFactory(this::createPage);

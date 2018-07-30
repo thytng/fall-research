@@ -52,6 +52,13 @@ public class PaginatingDataHandler {
         numPages = (int) Math.ceil(((double) numPages)/((double) ENTRIES_PER_PAGE));
     }
 
+    /**
+     * Called when the user clicks on a new page. If the page has already been loaded, we
+     * can immediately return it from the HashMap. If not, then we must load the data, add it
+     * to the HashMap, and return it.
+     * @param page
+     * @return
+     */
     public ObservableList<DataEntry> loadPage(int page) {
         System.out.println(page);
         System.out.println(dataByPage.toString());
@@ -65,6 +72,11 @@ public class PaginatingDataHandler {
         }
     }
 
+    /**
+     * If we are loading a new page, we need to pull the data from the database and store
+     * it locally.
+     * @param page
+     */
     private void loadNewPage(int page) {
 
         System.out.println("Initializing load new page.");
@@ -113,11 +125,18 @@ public class PaginatingDataHandler {
             if (newPageData.size() > 0) {
                 System.out.println("Condition hit");
                 dataByPage.put(page, newPageData);
+
+                if (dataByPage.size() >= numPages) {
+                    try{
+                        conn.close(); //Close the connection if we know we've already loaded all entries.
+                    } catch (SQLException se) {
+                        se.printStackTrace();
+                    }
+                }
             }
         }
     }
 
-//    public String getUsername() { return dataHandler.username; }
     public String getTableName() { return tableName; }
     public Connection getConnection() { return conn; }
     public int getNumPages() { return numPages; }
