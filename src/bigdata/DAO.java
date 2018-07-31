@@ -21,7 +21,7 @@ public class DAO {
     }
 
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees order by emp_no, first_name";
+        String sql = "select * from employees order by emp_no";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
