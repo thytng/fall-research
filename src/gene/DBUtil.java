@@ -9,10 +9,9 @@ public class DBUtil {
     private static Connection conn;
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/fall2018?useSSL=false" +
-            "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/mysql";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "pass";
+    private static final String DB_PASS = "Swa!Exa4";
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);
@@ -21,10 +20,12 @@ public class DBUtil {
         conn.setAutoCommit(false);
     }
 
-    public static void getConnection() throws SQLException, ClassNotFoundException {
+    public static Connection getConnection() throws SQLException, ClassNotFoundException {
         if (conn == null || conn.isClosed()) {
             connect();
         }
+
+        return conn;
     }
 
     public static void disconnect() throws SQLException {
