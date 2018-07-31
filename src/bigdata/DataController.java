@@ -40,8 +40,8 @@ public class DataController extends Application {
     private Button commitButton = new Button("Commit Changes");
     private Button revertButton = new Button("Revert Changes");
 
-    private FilteredList<DataEntry> unchangedEntries;
-    private FilteredList<DataEntry> changedEntries;
+    private ObservableList<DataEntry> unchangedEntries;
+    private ObservableList<DataEntry> changedEntries = FXCollections.observableArrayList();
     private TableView<DataEntry> unchangedTable = createEmptyTable(false);
     private TableView<DataEntry> changedTable = createEmptyTable(false);
     private Stage compareStage = new Stage();
@@ -98,6 +98,7 @@ public class DataController extends Application {
         compareButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                System.out.println("still working.");
                 structureCompareWindow();
                 mainTable.setEditable(true);
                 mainTable.setItems(currentData);
@@ -131,15 +132,14 @@ public class DataController extends Application {
                 public void handle(TableColumn.CellEditEvent event) {
                     DataEntry entry = (DataEntry) event.getRowValue();
                     changedData.add(entry);
-                    System.out.println(entry.getGender());  // old gender
-                    getDataChanges();
                     Character gender = (Character) event.getNewValue();
                     try {
                         DAO.updateEntryStatus(gender, entry.getEmpNo());
                     } catch (SQLException | ClassNotFoundException e) {
-                        System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
+                        System.out.println("An error occurred when UPDATING gender: " + e);
                         e.printStackTrace();
                     }
+//                    getDataChanges();
                 }
             });
         }
@@ -148,6 +148,7 @@ public class DataController extends Application {
     }
 
     private void structureCompareWindow() {
+        System.out.println("window");
         getDataChanges();
 
         unchangedTable.setItems(unchangedEntries);
@@ -200,16 +201,20 @@ public class DataController extends Application {
 
     private void getDataChanges() {
         currentData = getUpdatedData();
-//        unchangedEntries = originalData.filtered(p -> !currentData.contains(p));
-//        changedEntries = currentData.filtered(p -> !originalData.contains(p));
         unchangedEntries = changedData.filtered(p -> !currentData.contains(p));
-        System.out.println(changedData.size());
-        System.out.println(changedData.get(0).getGender());
-        System.out.println(currentData.contains(changedData.get(0)));
-        System.out.println(currentData.indexOf(changedData.get(0)));
-        System.out.println(currentData.get(0).getGender());
-        System.out.println(unchangedEntries.isEmpty());
-        System.out.println(unchangedEntries.get(0).getGender());
+
+        for (DataEntry entry : unchangedEntries) {
+            DataEntry newEntry = new DataEntry(entry);
+            System.out.println(newEntry.getGender());
+            newEntry.setGender(entry.getGender().equals('M') ? 'F' : 'M');
+            System.out.println(newEntry.getGender());
+            System.out.println("old " + entry.getGender());
+            changedEntries.add(newEntry);
+        }
+        System.out.println("Size:");
+        System.out.println("\t" + changedEntries.size());
+        System.out.println("\t" + unchangedEntries.size());
+
 
     }
 

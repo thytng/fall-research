@@ -23,6 +23,15 @@ public class DataEntry {
         this.hireDate = new SimpleObjectProperty<>();
     }
 
+    public DataEntry(DataEntry dataEntry) {
+        this.empNo = new SimpleIntegerProperty(dataEntry.getEmpNo());
+        this.birthDate = new SimpleObjectProperty<>(dataEntry.getBirthDate());
+        this.firstName = new SimpleStringProperty(dataEntry.getFirstName());
+        this.lastName = new SimpleStringProperty(dataEntry.getLastName());
+        this.gender = new SimpleObjectProperty<>(dataEntry.getGender());
+        this.hireDate = new SimpleObjectProperty<>(dataEntry.getHireDate());
+    }
+
     public int getEmpNo() {
         return empNo.get();
     }
