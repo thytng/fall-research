@@ -52,8 +52,6 @@ public class DataController extends Application {
     private GridPane buttonPane = new GridPane();
     private Scene compareScene = new Scene(comparePane);
 
-    private int lastSeen;
-    private int firstSeen;
 
     public void structureMainTableView() {
         mainTable = createEmptyTable(true);

@@ -1,4 +1,4 @@
-package sammybigdata;
+package mergexperiment;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -61,7 +61,6 @@ public class DAO {
             entry.setHireDate(rs.getDate("hire_date"));
             entries.add(entry);
         }
-
         return entries;
     }
 
@@ -85,7 +84,6 @@ public class DAO {
             entries.add(0, entry);
             System.out.println(entries.toString());
         }
-
         return entries;
     }
 
@@ -119,7 +117,6 @@ public class DAO {
             throw e;
         }
     }
-
 
     public static ObservableList<DataEntry> loadLast() throws SQLException, ClassNotFoundException {
 

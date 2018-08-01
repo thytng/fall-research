@@ -1,8 +1,8 @@
-package sammyexp;
+package mergexperiment;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -17,14 +17,16 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Optional;
 
 public class DataController extends Application {
     private BorderPane borderPane = new BorderPane();
 
     private ObservableList<DataEntry> originalData;
     private ObservableList<DataEntry> currentData;
+    private ObservableList<DataEntry> changedData = FXCollections.observableArrayList();
 
     private Scene mainScene = new Scene(borderPane);
     private TableView<DataEntry> mainTable = new TableView<>();
@@ -37,15 +39,17 @@ public class DataController extends Application {
     private Button commitButton = new Button("Commit Changes");
     private Button revertButton = new Button("Revert Changes");
 
-    private FilteredList<DataEntry> unchangedEntries;
-    private FilteredList<DataEntry> changedEntries;
+    private Button goLeft = new Button("Last 15");
+    private Button goRight = new Button("Next 15");
+
+    private ObservableList<DataEntry> unchangedEntries;
+    private ObservableList<DataEntry> changedEntries;
     private TableView<DataEntry> unchangedTable = createEmptyTable(false);
     private TableView<DataEntry> changedTable = createEmptyTable(false);
     private Stage compareStage = new Stage();
     private GridPane comparePane = new GridPane();
+    private GridPane buttonPane = new GridPane();
     private Scene compareScene = new Scene(comparePane);
-
-    private int lastIndex;
 
     public void structureMainTableView() {
         mainTable = createEmptyTable(true);
@@ -55,16 +59,43 @@ public class DataController extends Application {
         mainTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         borderPane.setCenter(mainTable);
+
+        buttonPane.add(goLeft, 0, 0);
+        buttonPane.add(goRight, 1, 0);
+        GridPane.setHalignment(goLeft, HPos.LEFT);
+        GridPane.setHalignment(goRight, HPos.RIGHT);
+        goLeft.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    mainTable.setItems(DAO.loadLast());
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        goRight.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    mainTable.setItems(DAO.loadNext());
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        borderPane.setBottom(buttonPane);
     }
 
     public void structureSearchView() {
-        choiceBox.getItems().addAll("Email", "Gene");
-        choiceBox.setValue("Email");
+        choiceBox.getItems().addAll("Employee Number", "Gender");
+        choiceBox.setValue("Employee Number");
 
         searchField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                String field = choiceBox.getValue().equals("Email") ? "email" : "gene";
+                String field = choiceBox.getValue().equals("Employee Number") ? "emp_no" : "gender";
                 try {
                     currentData = DAO.searchEntry(field, searchField.getText().toLowerCase());
                     mainTable.setItems(currentData);
@@ -94,6 +125,16 @@ public class DataController extends Application {
     public void structureCompareView() {
         comparePane.add(unchangedTable, 0, 0);
         comparePane.add(changedTable, 1, 0);
+
+        comparePane.add(commitButton, 0, 1);
+        GridPane.setHalignment(commitButton, HPos.CENTER);
+        comparePane.add(revertButton, 1, 1);
+        GridPane.setHalignment(revertButton, HPos.CENTER);
+
+        comparePane.setVgap(10);
+        comparePane.setHgap(5);
+        comparePane.setPadding(new Insets(10, 0, 10, 0));
+
         compareButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -105,42 +146,6 @@ public class DataController extends Application {
         });
 
         sideBar.add(compareButton, 0, 1);
-        currentData = getUpdatedData();
-    }
-
-    private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
-        TableView<DataEntry> table = new TableView<>();
-        TableColumn timeStampCol = new TableColumn("Timestamp");
-        timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
-        TableColumn geneCol = new TableColumn("Gene");
-        geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
-        TableColumn emailCol = new TableColumn("Email");
-        emailCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("email"));
-        TableColumn sampleCol = new TableColumn("Sample");
-        sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
-        TableColumn controlCol = new TableColumn("Control");
-        controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
-
-        TableColumn classifiedCol = new TableColumn("Classified");
-        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("classified"));
-        if (modifyStatus) {
-            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
-            classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
-                @Override
-                public void handle(TableColumn.CellEditEvent event) {
-                    DataEntry entry = (DataEntry) event.getRowValue();
-                    Boolean classified = (Boolean) event.getNewValue();
-                    try {
-                        DAO.updateEntryStatus(entry.getGene(), entry.getEmail(), classified);
-                    } catch (SQLException | ClassNotFoundException e) {
-                        System.out.println("An error occurred when UPDATING CLASSIFIED: " + e);
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-        table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
-        return table;
     }
 
     private void structureCompareWindow() {
@@ -157,47 +162,85 @@ public class DataController extends Application {
             @Override
             public void handle(MouseEvent event) {
                 DBUtil.commitChanges();
-                alertCommit(true);
-                originalData = getUpdatedData();
+                if (alertCommit(true).get() == ButtonType.OK) {
+                    changedData = FXCollections.observableArrayList();
+                    originalData = getUpdatedData();
+                }
                 compareStage.hide();
             }
         });
-        comparePane.add(commitButton, 0, 1);
-        GridPane.setHalignment(commitButton, HPos.CENTER);
+
 
         // REVERT
         revertButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 DBUtil.revertChanges();
-                alertCommit(false);
-                currentData = getUpdatedData();
+                if (alertCommit(false).get() == ButtonType.OK) {
+                    changedData = FXCollections.observableArrayList();
+                    currentData = getUpdatedData();
+                }
                 compareStage.hide();
             }
         });
-        comparePane.add(revertButton, 1, 1);
-        GridPane.setHalignment(revertButton, HPos.CENTER);
-
-        comparePane.setVgap(10);
-        comparePane.setHgap(5);
-        comparePane.setPadding(new Insets(10, 0, 10, 0));
 
         compareStage.showAndWait();
     }
 
-    private void alertCommit(boolean commit) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        String title = commit ? "Commit" : "Revert";
-        String message = commit ? "committed" : "reverted";
-        alert.setTitle(title + " Changes");
-        alert.setHeaderText("Changes " + message + " successfully.");
-        alert.showAndWait();
+    private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
+        TableView<DataEntry> table = new TableView<>();
+        TableColumn timeStampCol = new TableColumn("Employee Number");
+        timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("empNo"));
+        TableColumn geneCol = new TableColumn("Birthday");
+        geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Date>("birthDate"));
+        TableColumn emailCol = new TableColumn("First Name");
+        emailCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("firstName"));
+        TableColumn sampleCol = new TableColumn("Last Name");
+        sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("lastName"));
+        TableColumn controlCol = new TableColumn("Hire Date");
+        controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Date>("hireDate"));
+
+        TableColumn classifiedCol = new TableColumn("Gender");
+        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("gender"));
+        if (modifyStatus) {
+            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn('M', 'F'));
+            classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+                @Override
+                public void handle(TableColumn.CellEditEvent event) {
+                    DataEntry entry = (DataEntry) event.getRowValue();
+                    Character gender = (Character) event.getNewValue();
+                    entry.setGender(gender);
+                    changedData.add(entry);
+                    try {
+                        DAO.updateEntryStatus(gender, entry.getEmpNo());
+                    } catch (SQLException | ClassNotFoundException e) {
+                        System.out.println("An error occurred when UPDATING gender: " + e);
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
+        return table;
+    }
+
+    private Optional<ButtonType> alertCommit(boolean commit) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        String message = commit ? "Commit" : "Revert";
+        alert.setTitle(message + " Changes");
+        alert.setHeaderText("Are you sure you want to " + message.toLowerCase() + "?");
+        return alert.showAndWait();
     }
 
     private void getDataChanges() {
         currentData = getUpdatedData();
-        unchangedEntries = originalData.filtered(p -> !currentData.contains(p));
-        changedEntries = currentData.filtered(p -> !originalData.contains(p));
+        changedEntries = changedData.filtered(p -> !originalData.contains(p));
+        unchangedEntries = FXCollections.observableArrayList();
+        for (DataEntry entry : changedEntries) {
+            DataEntry newEntry = new DataEntry(entry);
+            newEntry.setGender(entry.getGender().equals('M') ? 'F' : 'M');
+            unchangedEntries.add(newEntry);
+        }
     }
 
     private ObservableList<DataEntry> getUpdatedData() {
@@ -216,6 +259,7 @@ public class DataController extends Application {
             e.printStackTrace();
             System.exit(1);
         }
+
         structureMainTableView();
         structureSearchView();
         structureCompareView();
