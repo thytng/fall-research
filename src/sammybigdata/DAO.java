@@ -10,9 +10,15 @@ public class DAO {
 
     private static int firstIndex;
     private static int lastIndex;
+    private static boolean searching = false;
+    private static String field;
+    private static String value;
 
     public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees where " + field + " like '%" + value + "%' order by emp_no";
+        String sql = "select * from employees where " + field + " like '%" + value + "%' order by emp_no LIMIT 15";
+        searching = true;
+        DAO.field = field;
+        DAO.value = value;
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -39,9 +45,14 @@ public class DAO {
     private static ObservableList<DataEntry> getEntriesFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
 
+        boolean first = true;
         while (rs.next()) {
             DataEntry entry = new DataEntry();
             entry.setEmpNo(rs.getInt("emp_no"));
+            if (first) {
+                firstIndex = entry.getEmpNo();
+                first = false;
+            }
             lastIndex = entry.getEmpNo();
             entry.setBirthDate(rs.getDate("birth_date"));
             entry.setFirstName(rs.getString("first_name"));
@@ -70,6 +81,7 @@ public class DAO {
                 lastIndex = entry.getEmpNo();
                 firstSet = false;
             }
+            firstIndex = entry.getEmpNo();
             entries.add(0, entry);
             System.out.println(entries.toString());
         }
@@ -110,7 +122,13 @@ public class DAO {
 
 
     public static ObservableList<DataEntry> loadLast() throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees where emp_no < " + (lastIndex-14) + " order by emp_no desc LIMIT 15;";
+
+        String sql;
+        if (!searching) {
+            sql = "select * from employees where emp_no < " + firstIndex + " order by emp_no desc LIMIT 15;";
+        } else {
+            sql = "select * from employees where emp_no < " + firstIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by emp_no desc LIMIT 15";
+        }
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -123,7 +141,12 @@ public class DAO {
     }
 
     public static ObservableList<DataEntry> loadNext() throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees where emp_no > " + lastIndex + " order by emp_no asc LIMIT 15;";
+        String sql;
+        if (!searching) {
+            sql = "select * from employees where emp_no > " + lastIndex + " order by emp_no asc LIMIT 15;";
+        } else {
+            sql = "select * from employees where emp_no > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by emp_no asc LIMIT 15";
+        }
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
