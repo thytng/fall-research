@@ -197,31 +197,39 @@ public class DataController extends Application {
         usernameCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("username"));
         TableColumn sampleCol = new TableColumn("Sample");
         sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
-
-//        private SimpleObjectProperty<Timestamp> timestamp;
-//        private StringProperty username;
-//        private IntegerProperty id;
-//        private StringProperty sample;
-//        private StringProperty control;
-//        private StringProperty windowId;
-//        private StringProperty gene;
-//        private DoubleProperty avgCnvRatio;
-//        private DoubleProperty bbStd;
-//        private DoubleProperty cnvRatio;
-//        private DoubleProperty covStd;
-//        private DoubleProperty avgDupRatio;
-//        private DoubleProperty gcPerc;
-//        private DoubleProperty alleleFreq;
-//        private IntegerProperty readStats;
-//        private BooleanProperty isTraining;
-//        private BooleanProperty hetClassification;
-//        private DoubleProperty avgBowtieBwaRatio;
-//        private DoubleProperty cnvRatioStd;
-//        private DoubleProperty avgCov;
-
+        TableColumn controlCol = new TableColumn("Control");
+        controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
+        TableColumn windowIdCol = new TableColumn("Window ID");
+        windowIdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("windowId"));
+        TableColumn geneCol = new TableColumn("Gene");
+        geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
+        TableColumn avgCnvRatioCol = new TableColumn("Avg_Cnv_Ratio");
+        avgCnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgCnvRatio"));
+        TableColumn bbStdCol = new TableColumn("Bb_Std");
+        bbStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("bbStd"));
+        TableColumn cnvRatioCol = new TableColumn("Cnv_Ratio");
+        cnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatio"));
+        TableColumn covStdCol = new TableColumn("Cov_Std_Col");
+        covStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("covStd"));
+        TableColumn avgDupRatioCol = new TableColumn("Avg_Dup_Ratio");
+        avgDupRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgDupRatio"));
+        TableColumn gcPercCol = new TableColumn();
+        gcPercCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("gcPerc"));
+        TableColumn alleleFreqCol = new TableColumn();
+        alleleFreqCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("alleleFreq"));
+        TableColumn readStatsCol = new TableColumn();
+        readStatsCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("readStats"));
+        TableColumn isTrainingCol = new TableColumn();
+        isTrainingCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("isTraining"));
+        TableColumn avgBowtieBwaRatioCol = new TableColumn();
+        avgBowtieBwaRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgBowtieBwaRatio"));
+        TableColumn cnvRatioStdCol = new TableColumn();
+        cnvRatioStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatioStd"));
+        TableColumn avgCovCol = new TableColumn();
+        avgCovCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgCov"));
 
         TableColumn classifiedCol = new TableColumn("Het_Classification");
-        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("het_classification"));
+        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("hetClassification"));
         if (modifyStatus) {
             classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
             classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
@@ -240,7 +248,9 @@ public class DataController extends Application {
                 }
             });
         }
-        table.getColumns().addAll(timeStampCol, geneCol, emailCol, sampleCol, controlCol, classifiedCol);
+        table.getColumns().addAll(timestampCol, usernameCol, sampleCol, controlCol, windowIdCol, geneCol,
+                avgCnvRatioCol, bbStdCol, cnvRatioCol, covStdCol, avgDupRatioCol, gcPercCol, alleleFreqCol,
+                readStatsCol, isTrainingCol, avgBowtieBwaRatioCol, cnvRatioStdCol, avgCovCol, classifiedCol);
         return table;
     }
 
