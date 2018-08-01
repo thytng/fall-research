@@ -191,8 +191,8 @@ public class DataController extends Application {
     private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
         TableView<DataEntry> table = new TableView<>();
 
-        TableColumn timestampCol = new TableColumn("Timestamp");
-        timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
+//        TableColumn timestampCol = new TableColumn("Timestamp");
+//        timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
         TableColumn usernameCol = new TableColumn("Username");
         usernameCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("username"));
         TableColumn sampleCol = new TableColumn("Sample");
@@ -248,7 +248,7 @@ public class DataController extends Application {
                 }
             });
         }
-        table.getColumns().addAll(timestampCol, usernameCol, sampleCol, controlCol, windowIdCol, geneCol,
+        table.getColumns().addAll(usernameCol, sampleCol, controlCol, windowIdCol, geneCol,
                 avgCnvRatioCol, bbStdCol, cnvRatioCol, covStdCol, avgDupRatioCol, gcPercCol, alleleFreqCol,
                 readStatsCol, isTrainingCol, avgBowtieBwaRatioCol, cnvRatioStdCol, avgCovCol, classifiedCol);
         return table;

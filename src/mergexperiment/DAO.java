@@ -78,7 +78,7 @@ public class DAO {
             entry.setControl(rs.getString("control"));
             entry.setGene(rs.getString("gene"));
             entry.setSample(rs.getString("sample"));
-            entry.setTimestamp(rs.getTimestamp("time_stamp"));
+//            entry.setTimestamp(rs.getTimestamp("time_stamp"));
             entry.setAlleleFreq(rs.getDouble("allele_freq"));
             entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
@@ -115,7 +115,7 @@ public class DAO {
             entry.setControl(rs.getString("control"));
             entry.setGene(rs.getString("gene"));
             entry.setSample(rs.getString("sample"));
-            entry.setTimestamp(rs.getTimestamp("time_stamp"));
+//            entry.setTimestamp(rs.getTimestamp("time_stamp"));
             entry.setAlleleFreq(rs.getDouble("allele_freq"));
             entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));

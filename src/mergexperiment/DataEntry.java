@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 public class DataEntry {
 
-    private SimpleObjectProperty<Timestamp> timestamp;
+//    private SimpleObjectProperty<Timestamp> timestamp;
     private StringProperty username;
     private IntegerProperty id;
     private StringProperty sample;
@@ -29,7 +29,7 @@ public class DataEntry {
     private DoubleProperty avgCov;
 
     public DataEntry() {
-        this.timestamp = new SimpleObjectProperty<>();
+//        this.timestamp = new SimpleObjectProperty<>();
         this.username = new SimpleStringProperty();
         this.id = new SimpleIntegerProperty();
         this.sample = new SimpleStringProperty();
@@ -53,7 +53,7 @@ public class DataEntry {
 
     public DataEntry(DataEntry dataEntry) {
 
-        this.timestamp = new SimpleObjectProperty<>(dataEntry.getTimestamp());
+//        this.timestamp = new SimpleObjectProperty<>(dataEntry.getTimestamp());
         this.username = new SimpleStringProperty(dataEntry.getUsername());
         this.id = new SimpleIntegerProperty(dataEntry.getId());
         this.sample = new SimpleStringProperty(dataEntry.getSample());
@@ -219,13 +219,13 @@ public class DataEntry {
         return id;
     }
 
-    public Timestamp getTimestamp() {
-        return timestamp.get();
-    }
-
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp.set(timestamp);
-    }
+//    public Timestamp getTimestamp() {
+//        return timestamp.get();
+//    }
+//
+//    public void setTimestamp(Timestamp timestamp) {
+//        this.timestamp.set(timestamp);
+//    }
 
     public String getUsername() {
         return username.get();
@@ -263,9 +263,9 @@ public class DataEntry {
         this.bbStd.set(bbStd);
     }
 
-    public SimpleObjectProperty<Timestamp> timestampProperty() {
-        return timestamp;
-    }
+//    public SimpleObjectProperty<Timestamp> timestampProperty() {
+//        return timestamp;
+//    }
 
     public void setCnvRatio(double cnvRatio) {
         this.cnvRatio.set(cnvRatio);
