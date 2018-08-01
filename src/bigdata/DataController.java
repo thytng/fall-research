@@ -21,6 +21,7 @@ import javafx.stage.WindowEvent;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 public class DataController extends Application {
     private BorderPane borderPane = new BorderPane();
@@ -41,7 +42,7 @@ public class DataController extends Application {
     private Button revertButton = new Button("Revert Changes");
 
     private ObservableList<DataEntry> unchangedEntries;
-    private ObservableList<DataEntry> changedEntries = FXCollections.observableArrayList();
+    private ObservableList<DataEntry> changedEntries;
     private TableView<DataEntry> unchangedTable = createEmptyTable(false);
     private TableView<DataEntry> changedTable = createEmptyTable(false);
     private Stage compareStage = new Stage();
@@ -59,13 +60,13 @@ public class DataController extends Application {
     }
 
     public void structureSearchView() {
-        choiceBox.getItems().addAll("EmpNo", "Gender");
-        choiceBox.setValue("EmpNo");
+        choiceBox.getItems().addAll("Employee Number", "Gender");
+        choiceBox.setValue("Employee Number");
 
         searchField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                String field = choiceBox.getValue().equals("EmpNo") ? "emp_no" : "gender";
+                String field = choiceBox.getValue().equals("Employee Number") ? "emp_no" : "gender";
                 try {
                     currentData = DAO.searchEntry(field, searchField.getText().toLowerCase());
                     mainTable.setItems(currentData);
@@ -95,10 +96,19 @@ public class DataController extends Application {
     public void structureCompareView() {
         comparePane.add(unchangedTable, 0, 0);
         comparePane.add(changedTable, 1, 0);
+
+        comparePane.add(commitButton, 0, 1);
+        GridPane.setHalignment(commitButton, HPos.CENTER);
+        comparePane.add(revertButton, 1, 1);
+        GridPane.setHalignment(revertButton, HPos.CENTER);
+
+        comparePane.setVgap(10);
+        comparePane.setHgap(5);
+        comparePane.setPadding(new Insets(10, 0, 10, 0));
+
         compareButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("still working.");
                 structureCompareWindow();
                 mainTable.setEditable(true);
                 mainTable.setItems(currentData);
@@ -107,7 +117,45 @@ public class DataController extends Application {
         });
 
         sideBar.add(compareButton, 0, 1);
-        currentData = getUpdatedData();
+    }
+
+    private void structureCompareWindow() {
+        getDataChanges();
+
+        unchangedTable.setItems(unchangedEntries);
+        changedTable.setItems(changedEntries);
+
+        compareStage.setScene(compareScene);
+        mainTable.setEditable(false);
+
+        // COMMIT
+        commitButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                DBUtil.commitChanges();
+                if (alertCommit(true).get() == ButtonType.OK) {
+                    changedData = FXCollections.observableArrayList();
+                    originalData = getUpdatedData();
+                }
+                compareStage.hide();
+            }
+        });
+
+
+        // REVERT
+        revertButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                DBUtil.revertChanges();
+                if (alertCommit(false).get() == ButtonType.OK) {
+                    changedData = FXCollections.observableArrayList();
+                    currentData = getUpdatedData();
+                }
+                compareStage.hide();
+            }
+        });
+
+        compareStage.showAndWait();
     }
 
     private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
@@ -131,15 +179,15 @@ public class DataController extends Application {
                 @Override
                 public void handle(TableColumn.CellEditEvent event) {
                     DataEntry entry = (DataEntry) event.getRowValue();
-                    changedData.add(entry);
                     Character gender = (Character) event.getNewValue();
+                    entry.setGender(gender);
+                    changedData.add(entry);
                     try {
                         DAO.updateEntryStatus(gender, entry.getEmpNo());
                     } catch (SQLException | ClassNotFoundException e) {
                         System.out.println("An error occurred when UPDATING gender: " + e);
                         e.printStackTrace();
                     }
-//                    getDataChanges();
                 }
             });
         }
@@ -147,75 +195,23 @@ public class DataController extends Application {
         return table;
     }
 
-    private void structureCompareWindow() {
-        System.out.println("window");
-        getDataChanges();
-
-        unchangedTable.setItems(unchangedEntries);
-        changedTable.setItems(changedEntries);
-
-        compareStage.setScene(compareScene);
-        mainTable.setEditable(false);
-
-        // COMMIT
-        commitButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                DBUtil.commitChanges();
-                alertCommit(true);
-                originalData = getUpdatedData();
-                compareStage.hide();
-            }
-        });
-        comparePane.add(commitButton, 0, 1);
-        GridPane.setHalignment(commitButton, HPos.CENTER);
-
-        // REVERT
-        revertButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                DBUtil.revertChanges();
-                alertCommit(false);
-                currentData = getUpdatedData();
-                compareStage.hide();
-            }
-        });
-        comparePane.add(revertButton, 1, 1);
-        GridPane.setHalignment(revertButton, HPos.CENTER);
-
-        comparePane.setVgap(10);
-        comparePane.setHgap(5);
-        comparePane.setPadding(new Insets(10, 0, 10, 0));
-
-        compareStage.showAndWait();
-    }
-
-    private void alertCommit(boolean commit) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        String title = commit ? "Commit" : "Revert";
-        String message = commit ? "committed" : "reverted";
-        alert.setTitle(title + " Changes");
-        alert.setHeaderText("Changes " + message + " successfully.");
-        alert.showAndWait();
+    private Optional<ButtonType> alertCommit(boolean commit) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        String message = commit ? "Commit" : "Revert";
+        alert.setTitle(message + " Changes");
+        alert.setHeaderText("Are you sure you want to " + message.toLowerCase() + "?");
+        return alert.showAndWait();
     }
 
     private void getDataChanges() {
         currentData = getUpdatedData();
-        unchangedEntries = changedData.filtered(p -> !currentData.contains(p));
-
-        for (DataEntry entry : unchangedEntries) {
+        changedEntries = changedData.filtered(p -> !originalData.contains(p));
+        unchangedEntries = FXCollections.observableArrayList();
+        for (DataEntry entry : changedEntries) {
             DataEntry newEntry = new DataEntry(entry);
-            System.out.println(newEntry.getGender());
             newEntry.setGender(entry.getGender().equals('M') ? 'F' : 'M');
-            System.out.println(newEntry.getGender());
-            System.out.println("old " + entry.getGender());
-            changedEntries.add(newEntry);
+            unchangedEntries.add(newEntry);
         }
-        System.out.println("Size:");
-        System.out.println("\t" + changedEntries.size());
-        System.out.println("\t" + unchangedEntries.size());
-
-
     }
 
     private ObservableList<DataEntry> getUpdatedData() {
@@ -234,6 +230,7 @@ public class DataController extends Application {
             e.printStackTrace();
             System.exit(1);
         }
+
         structureMainTableView();
         structureSearchView();
         structureCompareView();
