@@ -14,6 +14,14 @@ public class DAO {
     private static String field;
     private static String value;
 
+    /**
+     * Queries entries from the database with some search condition.
+     * @param field The column being used as a condition (i.e. employee number)
+     * @param value The search value.
+     * @return ObservableList of DataEntry Objects that match the given condition, limited to 15
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
         String sql = "select * from employees where " + field + " like '%" + value + "%' order by emp_no LIMIT 15";
         searching = true;
@@ -30,6 +38,12 @@ public class DAO {
         }
     }
 
+    /**
+     * Queries entries from the database without any conditions.
+     * @return ObservableList of DataEntry Objects, limited to 15
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
         String sql = "select * from employees order by emp_no LIMIT 15";
 
@@ -42,6 +56,13 @@ public class DAO {
         }
     }
 
+    /**
+     * Instantiates DataEntry Objects from a ResultSet, used for Last Page pagination.
+     * @param rs
+     * @return ObservableList of DataEntry Objects
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     private static ObservableList<DataEntry> getEntriesFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
 
@@ -64,6 +85,13 @@ public class DAO {
         return entries;
     }
 
+    /**
+     * Instantiates DataEntry Objects from a ResultSet in an inverted order, used for Last Page pagination.
+     * @param rs
+     * @return ObservableList of DataEntry Objects
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     private static ObservableList<DataEntry> getReverseFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
 
@@ -118,6 +146,12 @@ public class DAO {
         }
     }
 
+    /**
+     * Loads the last page of entries.
+     * @return ObservableList of DataEntry Objects.
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ObservableList<DataEntry> loadLast() throws SQLException, ClassNotFoundException {
 
         String sql;
@@ -137,7 +171,14 @@ public class DAO {
 
     }
 
+    /**
+     * Loads the next page of entries.
+     * @return ObservableList of DataEntry Objects.
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ObservableList<DataEntry> loadNext() throws SQLException, ClassNotFoundException {
+
         String sql;
         if (!searching) {
             sql = "select * from employees where emp_no > " + lastIndex + " order by emp_no asc LIMIT 15;";
