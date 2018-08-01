@@ -19,6 +19,7 @@ import javafx.stage.WindowEvent;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 public class DataController extends Application {
@@ -189,30 +190,49 @@ public class DataController extends Application {
 
     private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
         TableView<DataEntry> table = new TableView<>();
-        TableColumn timeStampCol = new TableColumn("Employee Number");
-        timeStampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("empNo"));
-        TableColumn geneCol = new TableColumn("Birthday");
-        geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Date>("birthDate"));
-        TableColumn emailCol = new TableColumn("First Name");
-        emailCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("firstName"));
-        TableColumn sampleCol = new TableColumn("Last Name");
-        sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("lastName"));
-        TableColumn controlCol = new TableColumn("Hire Date");
-        controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Date>("hireDate"));
 
-        TableColumn classifiedCol = new TableColumn("Gender");
-        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("gender"));
+        TableColumn timestampCol = new TableColumn("Timestamp");
+        timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
+        TableColumn usernameCol = new TableColumn("Username");
+        usernameCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("username"));
+        TableColumn sampleCol = new TableColumn("Sample");
+        sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
+
+//        private SimpleObjectProperty<Timestamp> timestamp;
+//        private StringProperty username;
+//        private IntegerProperty id;
+//        private StringProperty sample;
+//        private StringProperty control;
+//        private StringProperty windowId;
+//        private StringProperty gene;
+//        private DoubleProperty avgCnvRatio;
+//        private DoubleProperty bbStd;
+//        private DoubleProperty cnvRatio;
+//        private DoubleProperty covStd;
+//        private DoubleProperty avgDupRatio;
+//        private DoubleProperty gcPerc;
+//        private DoubleProperty alleleFreq;
+//        private IntegerProperty readStats;
+//        private BooleanProperty isTraining;
+//        private BooleanProperty hetClassification;
+//        private DoubleProperty avgBowtieBwaRatio;
+//        private DoubleProperty cnvRatioStd;
+//        private DoubleProperty avgCov;
+
+
+        TableColumn classifiedCol = new TableColumn("Het_Classification");
+        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("het_classification"));
         if (modifyStatus) {
-            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn('M', 'F'));
+            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
             classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
                 @Override
                 public void handle(TableColumn.CellEditEvent event) {
                     DataEntry entry = (DataEntry) event.getRowValue();
-                    Character gender = (Character) event.getNewValue();
-                    entry.setGender(gender);
+                    boolean classified = (boolean) event.getNewValue();
+                    entry.setHetClassification(classified);
                     changedData.add(entry);
                     try {
-                        DAO.updateEntryStatus(gender, entry.getEmpNo());
+                        DAO.updateEntryStatus(classified, entry.getId());
                     } catch (SQLException | ClassNotFoundException e) {
                         System.out.println("An error occurred when UPDATING gender: " + e);
                         e.printStackTrace();
@@ -238,7 +258,7 @@ public class DataController extends Application {
         unchangedEntries = FXCollections.observableArrayList();
         for (DataEntry entry : changedEntries) {
             DataEntry newEntry = new DataEntry(entry);
-            newEntry.setGender(entry.getGender().equals('M') ? 'F' : 'M');
+            newEntry.setHetClassification(!entry.getHetClassification());
             unchangedEntries.add(newEntry);
         }
     }

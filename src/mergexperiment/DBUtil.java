@@ -9,10 +9,9 @@ public class DBUtil {
     private static Connection conn;
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/employees?useSSL=false" +
-            "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
-    private static final String DB_USER = "root";
-    private static final String DB_PASS = "Swa!Exa4";
+    private static final String DB_URL = "jdbc:mysql://138.68.228.126:3306/getiriao_iaa";
+    private static final String DB_USER = "getiriao_sammy";
+    private static final String DB_PASS = "JK7H{lcWxPa#";
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);

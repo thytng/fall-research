@@ -23,7 +23,7 @@ public class DAO {
      * @throws ClassNotFoundException
      */
     public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees where " + field + " like '%" + value + "%' order by emp_no LIMIT 15";
+        String sql = "select * from test_data where " + field + " like '%" + value + "%' order by id LIMIT 15";
         searching = true;
         DAO.field = field;
         DAO.value = value;
@@ -45,7 +45,7 @@ public class DAO {
      * @throws ClassNotFoundException
      */
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees order by emp_no LIMIT 15";
+        String sql = "select * from test_data order by id LIMIT 15";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -69,17 +69,30 @@ public class DAO {
         boolean first = true;
         while (rs.next()) {
             DataEntry entry = new DataEntry();
-            entry.setEmpNo(rs.getInt("emp_no"));
+            entry.setId(rs.getInt("id"));
             if (first) {
-                firstIndex = entry.getEmpNo();
+                firstIndex = entry.getId();
                 first = false;
             }
-            lastIndex = entry.getEmpNo();
-            entry.setBirthDate(rs.getDate("birth_date"));
-            entry.setFirstName(rs.getString("first_name"));
-            entry.setLastName(rs.getString("last_name"));
-            entry.setGender(rs.getString("gender").charAt(0));
-            entry.setHireDate(rs.getDate("hire_date"));
+            lastIndex = entry.getId();
+            entry.setControl(rs.getString("control"));
+            entry.setGene(rs.getString("gene"));
+            entry.setSample(rs.getString("sample"));
+            entry.setTimestamp(rs.getTimestamp("time_stamp"));
+            entry.setAlleleFreq(rs.getDouble("allele_freq"));
+            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
+            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
+            entry.setBbStd(rs.getDouble("bb_std"));
+            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
+            entry.setCovStd(rs.getDouble("cov_std"));
+            entry.setGcPerc(rs.getDouble("gc_perc"));
+            entry.setHetClassification(rs.getBoolean("het_classification"));
+            entry.setReadStats(rs.getInt("read_stats"));
+            entry.setWindowId(rs.getString("window_id"));
+            entry.setUsername(rs.getString("username"));
+            entry.setAvgBowtieBwaRatio(rs.getDouble("avg_bowtie_bwa_ratio"));
+            entry.setCnvRatioStd(rs.getDouble("cnv_ratio_std"));
+            entry.setAvgCov(rs.getDouble("avg_cov"));
             entries.add(entry);
         }
         return entries;
@@ -98,53 +111,66 @@ public class DAO {
         boolean firstSet = true;
         while (rs.next()) {
             DataEntry entry = new DataEntry();
-            entry.setEmpNo(rs.getInt("emp_no"));
-            entry.setBirthDate(rs.getDate("birth_date"));
-            entry.setFirstName(rs.getString("first_name"));
-            entry.setLastName(rs.getString("last_name"));
-            entry.setGender(rs.getString("gender").charAt(0));
-            entry.setHireDate(rs.getDate("hire_date"));
+            entry.setId(rs.getInt("id"));
+            entry.setControl(rs.getString("control"));
+            entry.setGene(rs.getString("gene"));
+            entry.setSample(rs.getString("sample"));
+            entry.setTimestamp(rs.getTimestamp("time_stamp"));
+            entry.setAlleleFreq(rs.getDouble("allele_freq"));
+            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
+            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
+            entry.setBbStd(rs.getDouble("bb_std"));
+            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
+            entry.setCovStd(rs.getDouble("cov_std"));
+            entry.setGcPerc(rs.getDouble("gc_perc"));
+            entry.setHetClassification(rs.getBoolean("het_classification"));
+            entry.setReadStats(rs.getInt("read_stats"));
+            entry.setWindowId(rs.getString("window_id"));
+            entry.setUsername(rs.getString("username"));
+            entry.setAvgBowtieBwaRatio(rs.getDouble("avg_bowtie_bwa_ratio"));
+            entry.setCnvRatioStd(rs.getDouble("cnv_ratio_std"));
+            entry.setAvgCov(rs.getDouble("avg_cov"));
             if (firstSet) {
-                lastIndex = entry.getEmpNo();
+                lastIndex = entry.getId();
                 firstSet = false;
             }
-            firstIndex = entry.getEmpNo();
+            firstIndex = entry.getId();
             entries.add(0, entry);
             System.out.println(entries.toString());
         }
         return entries;
     }
 
-    public static void updateEntryStatus (Character gender, Integer empNo) throws SQLException, ClassNotFoundException {
-        String sql = "update employees set gender = '" + gender + "' where emp_no = " + empNo;
+    public static void updateEntryStatus (Boolean classification, Integer idNo) throws SQLException, ClassNotFoundException {
+        String sql = "update test_data set het_classification = '" + classification + "' where id = " + idNo;
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while updating employee: " + empNo + ".");
+            System.out.println("An error occurred while updating employee: " + idNo + ".");
             throw e;
         }
     }
 
-    public static void addEntry(String gene, String email, String sample, String control) throws SQLException, ClassNotFoundException {
-        String sql = "insert into genes (gene, email, sample, control) values ('" +
-                gene + "', '" + email + "', '" + sample + "', '" + control + "')";
-        try {
-            DBUtil.executeUpdate(sql);
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while inserting gene: " + gene + ".");
-            throw e;
-        }
-    }
-
-    public static void deleteEntry(String gene) throws SQLException, ClassNotFoundException {
-        String sql = "delete from genes where gene = '" + gene + "'";
-        try {
-            DBUtil.executeUpdate(sql);
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while deleting gene: " + gene + ".");
-            throw e;
-        }
-    }
+//    public static void addEntry(String gene, String email, String sample, String control) throws SQLException, ClassNotFoundException {
+//        String sql = "insert into genes (gene, email, sample, control) values ('" +
+//                gene + "', '" + email + "', '" + sample + "', '" + control + "')";
+//        try {
+//            DBUtil.executeUpdate(sql);
+//        } catch (SQLException | ClassNotFoundException e) {
+//            System.out.println("An error occurred while inserting gene: " + gene + ".");
+//            throw e;
+//        }
+//    }
+//
+//    public static void deleteEntry(String gene) throws SQLException, ClassNotFoundException {
+//        String sql = "delete from genes where gene = '" + gene + "'";
+//        try {
+//            DBUtil.executeUpdate(sql);
+//        } catch (SQLException | ClassNotFoundException e) {
+//            System.out.println("An error occurred while deleting gene: " + gene + ".");
+//            throw e;
+//        }
+//    }
 
     /**
      * Loads the last page of entries.
@@ -156,9 +182,9 @@ public class DAO {
 
         String sql;
         if (!searching) {
-            sql = "select * from employees where emp_no < " + firstIndex + " order by emp_no desc LIMIT 15;";
+            sql = "select * from test_data where id < " + firstIndex + " order by id desc LIMIT 15;";
         } else {
-            sql = "select * from employees where emp_no < " + firstIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by emp_no desc LIMIT 15";
+            sql = "select * from test_data where id < " + firstIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id desc LIMIT 15";
         }
 
         try {
@@ -181,9 +207,9 @@ public class DAO {
 
         String sql;
         if (!searching) {
-            sql = "select * from employees where emp_no > " + lastIndex + " order by emp_no asc LIMIT 15;";
+            sql = "select * from test_data where id > " + lastIndex + " order by id asc LIMIT 15;";
         } else {
-            sql = "select * from employees where emp_no > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by emp_no asc LIMIT 15";
+            sql = "select * from test_data where id > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id asc LIMIT 15";
         }
 
         try {
