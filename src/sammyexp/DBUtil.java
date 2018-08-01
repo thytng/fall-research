@@ -1,4 +1,4 @@
-package bigdata;
+package sammyexp;
 
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -9,10 +9,10 @@ public class DBUtil {
     private static Connection conn;
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/employees?useSSL=false" +
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/fall2018?useSSL=false" +
             "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "Swa!Exa4";
+    private static final String DB_PASS = "ErnestHemmingway21$";
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);
@@ -35,7 +35,7 @@ public class DBUtil {
 
     public static ResultSetMetaData getMetaData() throws SQLException, ClassNotFoundException {
         try {
-            return executeQuery("select * from employees").getMetaData();
+            return executeQuery("select * from genes").getMetaData();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Problem occurred at getMetaData operation: " + e);
             throw e;

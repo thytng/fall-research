@@ -1,4 +1,4 @@
-package bigdata;
+package sammybigdata;
 
 import com.sun.rowset.CachedRowSetImpl;
 
@@ -13,6 +13,9 @@ public class DBUtil {
             "&useLegacyDatetimeCode=false&serverTimezone=America/New_York";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "Swa!Exa4";
+
+    private int firstIndex;
+    private int lastIndex;
 
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);

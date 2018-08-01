@@ -1,4 +1,4 @@
-package bigdata;
+package sammyexp;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DAO {
     public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees where " + field + " like '%" + value + "%' order by emp_no";
+        String sql = "select * from genes where " + field + " like '%" + value + "%' order by email, gene";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -20,8 +20,24 @@ public class DAO {
         }
     }
 
+    private static DataEntry getEntryFromResultSet(ResultSet rs) throws SQLException {
+        DataEntry entry = null;
+
+        if (rs.next()) {
+            entry = new DataEntry();
+            entry.setTimestamp(rs.getTimestamp("ts"));
+            entry.setGene(rs.getString("gene"));
+            entry.setEmail(rs.getString("email"));
+            entry.setSample(rs.getString("sample"));
+            entry.setControl(rs.getString("control"));
+            entry.setClassified(rs.getBoolean("classified"));
+        }
+
+        return entry;
+    }
+
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from employees order by emp_no, first_name LIMIT 50";
+        String sql = "select * from genes order by email, gene";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -36,23 +52,23 @@ public class DAO {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
         while (rs.next()) {
             DataEntry entry = new DataEntry();
-            entry.setEmpNo(rs.getInt("emp_no"));
-            entry.setBirthDate(rs.getDate("birth_date"));
-            entry.setFirstName(rs.getString("first_name"));
-            entry.setLastName(rs.getString("last_name"));
-            entry.setGender(rs.getString("gender").charAt(0));
-            entry.setHireDate(rs.getDate("hire_date"));
+            entry.setTimestamp(rs.getTimestamp("ts"));
+            entry.setGene(rs.getString("gene"));
+            entry.setEmail(rs.getString("email"));
+            entry.setSample(rs.getString("sample"));
+            entry.setControl(rs.getString("control"));
+            entry.setClassified(rs.getBoolean("classified"));
             entries.add(entry);
         }
         return entries;
     }
 
-    public static void updateEntryStatus (Character gender, Integer empNo) throws SQLException, ClassNotFoundException {
-        String sql = "update employees set gender = '" + gender + "' where emp_no = " + empNo;
+    public static void updateEntryStatus (String gene, String email, boolean classified) throws SQLException, ClassNotFoundException {
+        String sql = "update genes set classified = " + classified + " where gene = '" + gene + "' and email = '" + email + "'";
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while updating employee: " + empNo + ".");
+            System.out.println("An error occurred while updating gene: " + gene + ".");
             throw e;
         }
     }

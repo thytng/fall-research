@@ -1,0 +1,25 @@
+Pagination:
+
+1) Add unique integer id to entries (auto-increment)
+
+2) Initial data load
+SELECT * FROM table_name ORDER BY id LIMIT $page_limit;
+
+3) Save id of last visible entry $last_id
+
+4) Once user scrolls to bottom, load more data starting from last id
+SELECT * FROM table_name WHERE id > $last_id ORDER BY id LIMIT $page_limit;
+
+Improving filtering for comparison:
+
+1) Work entirely in database - only load what we need!
+
+2) Add a "silent" modified variable that defaults to false.
+
+3) Flip this variable when changing classified variable.
+
+3) When loading in modified entries, filter based on the silent variable.
+
+4) Include logic for showing "true" or "false" on the left/right side.
+
+SELECT * FROM genes WHERE modified is true
