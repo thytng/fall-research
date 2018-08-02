@@ -14,6 +14,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -40,8 +42,15 @@ public class DataController extends Application {
     private Button commitButton = new Button("Commit Changes");
     private Button revertButton = new Button("Revert Changes");
 
-    private Button goLeft = new Button("Last 15");
+    private HBox paginationBox = new HBox();
+    private Button goLeft = new Button("Prev 15");
     private Button goRight = new Button("Next 15");
+
+    private HBox resizeBox = new HBox();
+    private Button expandButton = new Button("Expand Table");
+    private Button condenseButton = new Button("Condense Table");
+    private final double condensedColSize = 25.0;
+    private final double expandedColSize = 80.0;
 
     private ObservableList<DataEntry> unchangedEntries;
     private ObservableList<DataEntry> changedEntries;
@@ -49,7 +58,7 @@ public class DataController extends Application {
     private TableView<DataEntry> changedTable = createEmptyTable(false);
     private Stage compareStage = new Stage();
     private GridPane comparePane = new GridPane();
-    private GridPane buttonPane = new GridPane();
+    private BorderPane bottomBar = new BorderPane();
     private Scene compareScene = new Scene(comparePane);
 
     public void structureMainTableView() {
@@ -57,14 +66,38 @@ public class DataController extends Application {
         currentData = getUpdatedData();
         mainTable.setItems(currentData);
         mainTable.setEditable(true);
-        mainTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+        resizeBox.getChildren().addAll(condenseButton, expandButton);
+        resizeBox.setSpacing(10);
+
+        condenseButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                ObservableList<TableColumn<DataEntry, ?>> cols = mainTable.getColumns();
+                for (int i = 0; i < cols.size(); i++) {
+                    if (i > 7) {
+                        cols.get(i).setPrefWidth(condensedColSize);
+                    }
+                }
+            }
+        });
+        expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                ObservableList<TableColumn<DataEntry, ?>> cols = mainTable.getColumns();
+                for (int i = 0; i < cols.size(); i++) {
+                    if (i > 7) {
+                        cols.get(i).setPrefWidth(expandedColSize);
+                    }
+                }
+            }
+        });
+
+        paginationBox.getChildren().addAll(goLeft, goRight);
+        paginationBox.setSpacing(10);
 
         borderPane.setCenter(mainTable);
 
-        buttonPane.add(goLeft, 0, 0);
-        buttonPane.add(goRight, 1, 0);
-        GridPane.setHalignment(goLeft, HPos.LEFT);
-        GridPane.setHalignment(goRight, HPos.RIGHT);
         goLeft.setOnMouseReleased(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -92,7 +125,11 @@ public class DataController extends Application {
             }
         });
 
-        borderPane.setBottom(buttonPane);
+        bottomBar.setLeft(paginationBox);
+        bottomBar.setRight(resizeBox);
+        bottomBar.setPadding(new Insets(10, 0, 0, 0));
+        borderPane.setBottom(bottomBar);
+
     }
 
     public void structureSearchView() {
@@ -195,6 +232,7 @@ public class DataController extends Application {
 
     private TableView<DataEntry> createEmptyTable(boolean allowModification) {
         TableView<DataEntry> table = new TableView<>();
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         TableColumn timestampCol = new TableColumn("timestamp");
         timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
@@ -232,7 +270,6 @@ public class DataController extends Application {
         readStatsCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("readStats"));
         TableColumn isTrainingCol = new TableColumn("is_training");
         isTrainingCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("isTraining"));
-
         TableColumn hetClassificationCol = new TableColumn("het_classification");
         hetClassificationCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("hetClassification"));
         if (allowModification) {
@@ -258,9 +295,21 @@ public class DataController extends Application {
             });
         }
 
-        table.getColumns().addAll(timestampCol, usernameCol, idCol, sampleCol, controlCol, windowIdCol, geneCol, avgCnvRatioCol,
-                avgBowtieBwaRatioCol, bbStdCol, cnvRatioStdCol, covStdCol, avgCovCol, avgDupRatioCol, gcPercCol,
-                alleleFreqCol, readStatsCol, isTrainingCol, hetClassificationCol);
+        avgCnvRatioCol.setPrefWidth(condensedColSize);
+        avgBowtieBwaRatioCol.setPrefWidth(condensedColSize);
+        bbStdCol.setPrefWidth(condensedColSize);
+        cnvRatioStdCol.setPrefWidth(condensedColSize);
+        covStdCol.setPrefWidth(condensedColSize);
+        avgCovCol.setPrefWidth(condensedColSize);
+        avgDupRatioCol.setPrefWidth(condensedColSize);
+        gcPercCol.setPrefWidth(condensedColSize);
+        alleleFreqCol.setPrefWidth(condensedColSize);
+        readStatsCol.setPrefWidth(condensedColSize);
+        isTrainingCol.setPrefWidth(condensedColSize);
+
+        table.getColumns().addAll(timestampCol, usernameCol, idCol, sampleCol, controlCol, windowIdCol, geneCol,
+                hetClassificationCol, avgCnvRatioCol, avgBowtieBwaRatioCol, bbStdCol, cnvRatioStdCol, covStdCol,
+                avgCovCol, avgDupRatioCol, gcPercCol, alleleFreqCol, readStatsCol, isTrainingCol);
 
         return table;
     }
