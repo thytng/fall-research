@@ -318,6 +318,11 @@ public class DataController extends Application {
                 if (changedEntries.size() != 0) {
                     structureCompareWindow();
                 }
+                try {
+                    DBUtil.disconnect();
+                } catch (SQLException se) {
+                    se.printStackTrace();
+                }
             }
         });
     }
