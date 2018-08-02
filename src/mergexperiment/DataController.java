@@ -96,15 +96,14 @@ public class DataController extends Application {
     }
 
     public void structureSearchView() {
-        choiceBox.getItems().addAll("Employee Number", "Gender");
-        choiceBox.setValue("Employee Number");
+        choiceBox.getItems().addAll("username", "id", "sample", "control", "gene");
+        choiceBox.setValue("username");
 
         searchField.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                String field = choiceBox.getValue().equals("Employee Number") ? "emp_no" : "gender";
                 try {
-                    currentData = DAO.searchEntry(field, searchField.getText().toLowerCase());
+                    currentData = DAO.searchEntry(choiceBox.getValue(), searchField.getText());
                     mainTable.setItems(currentData);
                 } catch (SQLException | ClassNotFoundException e) {
 
@@ -133,9 +132,9 @@ public class DataController extends Application {
         comparePane.add(unchangedTable, 0, 0);
         comparePane.add(changedTable, 1, 0);
 
-        comparePane.add(commitButton, 0, 1);
+        comparePane.add(commitButton, 1, 1);
         GridPane.setHalignment(commitButton, HPos.CENTER);
-        comparePane.add(revertButton, 1, 1);
+        comparePane.add(revertButton, 0, 1);
         GridPane.setHalignment(revertButton, HPos.CENTER);
 
         comparePane.setVgap(10);
@@ -194,69 +193,75 @@ public class DataController extends Application {
         compareStage.showAndWait();
     }
 
-    private TableView<DataEntry> createEmptyTable(boolean modifyStatus) {
+    private TableView<DataEntry> createEmptyTable(boolean allowModification) {
         TableView<DataEntry> table = new TableView<>();
 
-//        TableColumn timestampCol = new TableColumn("Timestamp");
-//        timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
-        TableColumn usernameCol = new TableColumn("Username");
+        TableColumn timestampCol = new TableColumn("timestamp");
+        timestampCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Timestamp>("timestamp"));
+        TableColumn usernameCol = new TableColumn("username");
         usernameCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("username"));
-        TableColumn sampleCol = new TableColumn("Sample");
+        TableColumn idCol = new TableColumn("id");
+        idCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("id"));
+        TableColumn sampleCol = new TableColumn("sample");
         sampleCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("sample"));
-        TableColumn controlCol = new TableColumn("Control");
+        TableColumn controlCol = new TableColumn("control");
         controlCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("control"));
-        TableColumn windowIdCol = new TableColumn("Window ID");
+        TableColumn windowIdCol = new TableColumn("window_id");
         windowIdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("windowId"));
-        TableColumn geneCol = new TableColumn("Gene");
+        TableColumn geneCol = new TableColumn("gene");
         geneCol.setCellValueFactory(new PropertyValueFactory<DataEntry, String>("gene"));
-        TableColumn avgCnvRatioCol = new TableColumn("Avg_Cnv_Ratio");
+        TableColumn avgCnvRatioCol = new TableColumn("avg_cnv_ratio");
         avgCnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgCnvRatio"));
-        TableColumn bbStdCol = new TableColumn("Bb_Std");
-        bbStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("bbStd"));
-//        TableColumn cnvRatioCol = new TableColumn("Cnv_Ratio");
-//        cnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatio"));
-        TableColumn covStdCol = new TableColumn("Cov_Std_Col");
-        covStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("covStd"));
-        TableColumn avgDupRatioCol = new TableColumn("Avg_Dup_Ratio");
-        avgDupRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgDupRatio"));
-        TableColumn gcPercCol = new TableColumn();
-        gcPercCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("gcPerc"));
-        TableColumn alleleFreqCol = new TableColumn();
-        alleleFreqCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("alleleFreq"));
-        TableColumn readStatsCol = new TableColumn();
-        readStatsCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("readStats"));
-        TableColumn isTrainingCol = new TableColumn();
-        isTrainingCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("isTraining"));
-        TableColumn avgBowtieBwaRatioCol = new TableColumn();
+        TableColumn avgBowtieBwaRatioCol = new TableColumn("avg_bowtie_bwa_ratio");
         avgBowtieBwaRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgBowtieBwaRatio"));
-        TableColumn cnvRatioStdCol = new TableColumn();
+        TableColumn bbStdCol = new TableColumn("bb_std");
+        bbStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("bbStd"));
+        TableColumn cnvRatioStdCol = new TableColumn("cnv_ratio_std");
         cnvRatioStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatioStd"));
-        TableColumn avgCovCol = new TableColumn();
+        TableColumn covStdCol = new TableColumn("cov_std_col");
+        covStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("covStd"));
+        TableColumn avgCovCol = new TableColumn("avg_cov");
         avgCovCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgCov"));
+        TableColumn avgDupRatioCol = new TableColumn("avg_dup_ratio");
+        avgDupRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgDupRatio"));
+        TableColumn gcPercCol = new TableColumn("gc_perc");
+        gcPercCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("gcPerc"));
+        TableColumn alleleFreqCol = new TableColumn("allele_freq");
+        alleleFreqCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("alleleFreq"));
+        TableColumn readStatsCol = new TableColumn("read_stats");
+        readStatsCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Integer>("readStats"));
+        TableColumn isTrainingCol = new TableColumn("is_training");
+        isTrainingCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("isTraining"));
 
-        TableColumn classifiedCol = new TableColumn("Het_Classification");
-        classifiedCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Character>("hetClassification"));
-        if (modifyStatus) {
-            classifiedCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
-            classifiedCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
+        TableColumn hetClassificationCol = new TableColumn("het_classification");
+        hetClassificationCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Boolean>("hetClassification"));
+        if (allowModification) {
+            hetClassificationCol.setCellFactory(ComboBoxTableCell.forTableColumn(true, false));
+            hetClassificationCol.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
                 @Override
                 public void handle(TableColumn.CellEditEvent event) {
                     DataEntry entry = (DataEntry) event.getRowValue();
-                    boolean classified = (boolean) event.getNewValue();
-                    entry.setHetClassification(classified);
+                    boolean status = (boolean) event.getNewValue();
+                    if (changedData.contains(entry)) {
+                        changedData.remove(entry);
+                    }
+                    entry.setHetClassification(status);
                     changedData.add(entry);
+
                     try {
-                        DAO.updateEntryStatus(classified, entry.getId());
+                        DAO.updateHetClassification(entry.getId(), status);
                     } catch (SQLException | ClassNotFoundException e) {
-                        System.out.println("An error occurred when UPDATING gender: " + e);
+                        System.out.println("An error occurred when UPDATING classification: " + e);
                         e.printStackTrace();
                     }
                 }
             });
         }
-        table.getColumns().addAll(usernameCol, sampleCol, controlCol, windowIdCol, geneCol,
-                avgCnvRatioCol, bbStdCol, covStdCol, avgDupRatioCol, gcPercCol, alleleFreqCol,
-                readStatsCol, isTrainingCol, avgBowtieBwaRatioCol, cnvRatioStdCol, avgCovCol, classifiedCol);
+
+        table.getColumns().addAll(timestampCol, usernameCol, idCol, sampleCol, controlCol, windowIdCol, geneCol, avgCnvRatioCol,
+                avgBowtieBwaRatioCol, bbStdCol, cnvRatioStdCol, covStdCol, avgCovCol, avgDupRatioCol, gcPercCol,
+                alleleFreqCol, readStatsCol, isTrainingCol, hetClassificationCol);
+
         return table;
     }
 
@@ -271,6 +276,7 @@ public class DataController extends Application {
     private void getDataChanges() {
         currentData = getUpdatedData();
         changedEntries = changedData.filtered(p -> !originalData.contains(p));
+
         unchangedEntries = FXCollections.observableArrayList();
         for (DataEntry entry : changedEntries) {
             DataEntry newEntry = new DataEntry(entry);

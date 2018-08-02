@@ -77,25 +77,24 @@ public class DAO {
                 first = false;
             }
             lastIndex = entry.getId();
-            entry.setControl(rs.getString("control"));
-            entry.setGene(rs.getString("gene"));
-            entry.setSample(rs.getString("sample"));
-//            entry.setTimestamp(rs.getTimestamp("time_stamp"));
-            entry.setAlleleFreq(rs.getDouble("allele_freq"));
-            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
-            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
-            entry.setBbStd(rs.getDouble("bb_std"));
-//            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
-            entry.setCovStd(rs.getDouble("cov_std"));
-            entry.setGcPerc(rs.getDouble("gc_perc"));
-            entry.setHetClassification(rs.getBoolean("het_classification"));
-            entry.setReadStats(rs.getInt("read_stats"));
-            entry.setWindowId(rs.getString("window_id"));
+            entry.setTimestamp(rs.getTimestamp("time_stamp"));
             entry.setUsername(rs.getString("username"));
+            entry.setSample(rs.getString("sample"));
+            entry.setControl(rs.getString("control"));
+            entry.setWindowId(rs.getString("window_id"));
+            entry.setGene(rs.getString("gene"));
+            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgBowtieBwaRatio(rs.getDouble("avg_bowtie_bwa_ratio"));
+            entry.setBbStd(rs.getDouble("bb_std"));
             entry.setCnvRatioStd(rs.getDouble("cnv_ratio_std"));
+            entry.setCovStd(rs.getDouble("cov_std"));
             entry.setAvgCov(rs.getDouble("avg_cov"));
-            entries.add(entry);
+            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
+            entry.setGcPerc(rs.getDouble("gc_perc"));
+            entry.setAlleleFreq(rs.getDouble("allele_freq"));
+            entry.setReadStats(rs.getInt("read_stats"));
+            entry.setIsTraining(rs.getBoolean("is_training"));
+            entry.setHetClassification(rs.getBoolean("het_classification"));
         }
         if (entries.size() > 0) {
             return entries;
@@ -121,25 +120,26 @@ public class DAO {
         boolean firstSet = true;
         while (rs.next()) {
             DataEntry entry = new DataEntry();
-            entry.setId(rs.getInt("id"));
-            entry.setControl(rs.getString("control"));
-            entry.setGene(rs.getString("gene"));
-            entry.setSample(rs.getString("sample"));
-//            entry.setTimestamp(rs.getTimestamp("time_stamp"));
-            entry.setAlleleFreq(rs.getDouble("allele_freq"));
-            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
-            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
-            entry.setBbStd(rs.getDouble("bb_std"));
-//            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
-            entry.setCovStd(rs.getDouble("cov_std"));
-            entry.setGcPerc(rs.getDouble("gc_perc"));
-            entry.setHetClassification(rs.getBoolean("het_classification"));
-            entry.setReadStats(rs.getInt("read_stats"));
-            entry.setWindowId(rs.getString("window_id"));
+
+            entry.setTimestamp(rs.getTimestamp("time_stamp"));
             entry.setUsername(rs.getString("username"));
+            entry.setId(rs.getInt("id"));
+            entry.setSample(rs.getString("sample"));
+            entry.setControl(rs.getString("control"));
+            entry.setWindowId(rs.getString("window_id"));
+            entry.setGene(rs.getString("gene"));
+            entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgBowtieBwaRatio(rs.getDouble("avg_bowtie_bwa_ratio"));
+            entry.setBbStd(rs.getDouble("bb_std"));
             entry.setCnvRatioStd(rs.getDouble("cnv_ratio_std"));
+            entry.setCovStd(rs.getDouble("cov_std"));
             entry.setAvgCov(rs.getDouble("avg_cov"));
+            entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
+            entry.setGcPerc(rs.getDouble("gc_perc"));
+            entry.setAlleleFreq(rs.getDouble("allele_freq"));
+            entry.setReadStats(rs.getInt("read_stats"));
+            entry.setIsTraining(rs.getBoolean("is_training"));
+            entry.setHetClassification(rs.getBoolean("het_classification"));
             if (firstSet) {
                 lastIndex = entry.getId();
                 firstSet = false;
@@ -158,36 +158,15 @@ public class DAO {
         }
     }
 
-    public static void updateEntryStatus (Boolean classification, Integer idNo) throws SQLException, ClassNotFoundException {
-        String sql = "update sample_data set het_classification = '" + classification + "' where id = " + idNo;
+    public static void updateHetClassification (Integer id, Boolean status) throws SQLException, ClassNotFoundException {
+        String sql = "update sample_data set het_classification = " + status + " where id = " + id;
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("An error occurred while updating employee: " + idNo + ".");
+            System.out.println("An error occurred while updating id: " + id + ".");
             throw e;
         }
     }
-
-//    public static void addEntry(String gene, String email, String sample, String control) throws SQLException, ClassNotFoundException {
-//        String sql = "insert into genes (gene, email, sample, control) values ('" +
-//                gene + "', '" + email + "', '" + sample + "', '" + control + "')";
-//        try {
-//            DBUtil.executeUpdate(sql);
-//        } catch (SQLException | ClassNotFoundException e) {
-//            System.out.println("An error occurred while inserting gene: " + gene + ".");
-//            throw e;
-//        }
-//    }
-//
-//    public static void deleteEntry(String gene) throws SQLException, ClassNotFoundException {
-//        String sql = "delete from genes where gene = '" + gene + "'";
-//        try {
-//            DBUtil.executeUpdate(sql);
-//        } catch (SQLException | ClassNotFoundException e) {
-//            System.out.println("An error occurred while deleting gene: " + gene + ".");
-//            throw e;
-//        }
-//    }
 
     /**
      * Loads the last page of entries.
