@@ -4,6 +4,10 @@ import javafx.beans.property.*;
 
 import java.sql.Timestamp;
 
+/**
+ * Class representation of an entry in the database. Contains Property variables
+ * for all db columns.
+ */
 public class DataEntry {
 
     private SimpleObjectProperty<Timestamp> timestamp;

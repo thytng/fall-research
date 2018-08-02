@@ -5,6 +5,10 @@ import com.sun.rowset.CachedRowSetImpl;
 import javax.sql.rowset.CachedRowSet;
 import java.sql.*;
 
+/**
+ * Includes a number of static methods for connecting to the database and
+ * committing changes.
+ */
 public class DBUtil {
     private static Connection conn;
 
@@ -13,6 +17,11 @@ public class DBUtil {
     private static final String DB_USER = "getiriao_sammy";
     private static final String DB_PASS = "JK7H{lcWxPa#";
 
+    /**
+     * Create new db connection.
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static void connect() throws SQLException, ClassNotFoundException {
         Class.forName(JDBC_DRIVER);
 
@@ -20,27 +29,49 @@ public class DBUtil {
         conn.setAutoCommit(false);
     }
 
+    /**
+     * Return an existing db connection.
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static void getConnection() throws SQLException, ClassNotFoundException {
         if (conn == null || conn.isClosed()) {
             connect();
         }
     }
 
+    /**
+     * Close existing db connection.
+     * @throws SQLException
+     */
     public static void disconnect() throws SQLException {
         if (conn != null && !conn.isClosed()) {
             conn.close();
         }
     }
 
+    /**
+     * Return information about the schema of the data.
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ResultSetMetaData getMetaData() throws SQLException, ClassNotFoundException {
         try {
-            return executeQuery("select * from employees").getMetaData();
+            return executeQuery("select * from sample_data").getMetaData();
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Problem occurred at getMetaData operation: " + e);
             throw e;
         }
     }
 
+    /**
+     * Execute a sql query passed as a String.
+     * @param sql
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static ResultSet executeQuery(String sql) throws SQLException, ClassNotFoundException {
         Statement stmt = null;
         ResultSet rs = null;
@@ -61,6 +92,12 @@ public class DBUtil {
         return crs;
     }
 
+    /**
+     * Perform update of pulled db data.
+     * @param sql
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static void executeUpdate(String sql) throws SQLException, ClassNotFoundException {
         Statement stmt = null;
         System.out.println("\nUpdate statement: " + sql + ".");
@@ -77,6 +114,10 @@ public class DBUtil {
         }
     }
 
+    /**
+     * Push changes made to the database so that they are reflected in the remote
+     * db.
+     */
     public static void commitChanges() {
         try {
             if (conn != null && !conn.isClosed()) {
@@ -90,6 +131,9 @@ public class DBUtil {
         }
     }
 
+    /**
+     * Undo any changes made to the db.
+     */
     public static void revertChanges() {
         try {
             if (conn != null && !conn.isClosed()) {
