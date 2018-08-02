@@ -208,8 +208,8 @@ public class DataController extends Application {
                 if (alertCommit(true).get() == ButtonType.OK) {
                     changedData = FXCollections.observableArrayList();
                     originalData = getUpdatedData();
+                    compareStage.hide();
                 }
-                compareStage.hide();
             }
         });
 
@@ -222,8 +222,8 @@ public class DataController extends Application {
                 if (alertCommit(false).get() == ButtonType.OK) {
                     changedData = FXCollections.observableArrayList();
                     currentData = getUpdatedData();
+                    compareStage.hide();
                 }
-                compareStage.hide();
             }
         });
 
