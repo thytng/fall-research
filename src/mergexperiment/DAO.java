@@ -95,6 +95,7 @@ public class DAO {
             entry.setReadStats(rs.getInt("read_stats"));
             entry.setIsTraining(rs.getBoolean("is_training"));
             entry.setHetClassification(rs.getBoolean("het_classification"));
+            entries.add(entry);
         }
         if (entries.size() > 0) {
             return entries;
