@@ -14,8 +14,12 @@ public class DBUtil {
 
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://138.68.228.126:3306/getiriao_iaa";
-    private static final String DB_USER = "getiriao_sammy";
-    private static final String DB_PASS = "JK7H{lcWxPa#";
+    private static String DB_USER = "getiriao_sammy";
+    private static String DB_PASS = "JK7H{lcWxPa#";
+
+    public static void setDbUser(String user) { DBUtil.DB_USER = user; }
+
+    public static void setDbPass(String pass) { DBUtil.DB_PASS = pass; }
 
     /**
      * Create new db connection.
