@@ -16,7 +16,7 @@ public class DataEntry {
     private StringProperty gene;
     private DoubleProperty avgCnvRatio;
     private DoubleProperty bbStd;
-    private DoubleProperty cnvRatio;
+//    private DoubleProperty cnvRatio;
     private DoubleProperty covStd;
     private DoubleProperty avgDupRatio;
     private DoubleProperty gcPerc;
@@ -38,7 +38,7 @@ public class DataEntry {
         this.gene = new SimpleStringProperty();
         this.avgCnvRatio = new SimpleDoubleProperty();
         this.bbStd = new SimpleDoubleProperty();
-        this.cnvRatio = new SimpleDoubleProperty();
+//        this.cnvRatio = new SimpleDoubleProperty();
         this.covStd = new SimpleDoubleProperty();
         this.avgDupRatio = new SimpleDoubleProperty();
         this.gcPerc = new SimpleDoubleProperty();
@@ -62,7 +62,7 @@ public class DataEntry {
         this.gene = new SimpleStringProperty(dataEntry.getGene());
         this.avgCnvRatio = new SimpleDoubleProperty(dataEntry.getAvgCnvRatio());
         this.bbStd = new SimpleDoubleProperty(dataEntry.getBbStd());
-        this.cnvRatio = new SimpleDoubleProperty(dataEntry.getCnvRatio());
+//        this.cnvRatio = new SimpleDoubleProperty(dataEntry.getCnvRatio());
         this.covStd = new SimpleDoubleProperty(dataEntry.getCovStd());
         this.avgDupRatio = new SimpleDoubleProperty(dataEntry.getAvgDupRatio());
         this.gcPerc = new SimpleDoubleProperty(dataEntry.getGcPerc());
@@ -129,13 +129,13 @@ public class DataEntry {
         return bbStd;
     }
 
-    public double getCnvRatio() {
-        return cnvRatio.get();
-    }
-
-    public DoubleProperty cnvRatioProperty() {
-        return cnvRatio;
-    }
+//    public double getCnvRatio() {
+//        return cnvRatio.get();
+//    }
+//
+//    public DoubleProperty cnvRatioProperty() {
+//        return cnvRatio;
+//    }
 
     public double getCovStd() {
         return covStd.get();
@@ -266,11 +266,11 @@ public class DataEntry {
 //    public SimpleObjectProperty<Timestamp> timestampProperty() {
 //        return timestamp;
 //    }
-
-    public void setCnvRatio(double cnvRatio) {
-        this.cnvRatio.set(cnvRatio);
-
-    }
+//
+//    public void setCnvRatio(double cnvRatio) {
+//        this.cnvRatio.set(cnvRatio);
+//
+//    }
 
     public void setSample(String sample) {
         this.sample.set(sample);

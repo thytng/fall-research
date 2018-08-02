@@ -69,7 +69,10 @@ public class DataController extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    mainTable.setItems(DAO.loadLast());
+                    ObservableList<DataEntry> items = DAO.loadLast();
+                    if (items.size() > 0) {
+                        mainTable.setItems(items);
+                    }
                 } catch (SQLException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -79,7 +82,10 @@ public class DataController extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    mainTable.setItems(DAO.loadNext());
+                    ObservableList<DataEntry> items = DAO.loadNext();
+                    if (items.size() > 0) {
+                        mainTable.setItems(items);
+                    }
                 } catch (SQLException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -207,8 +213,8 @@ public class DataController extends Application {
         avgCnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("avgCnvRatio"));
         TableColumn bbStdCol = new TableColumn("Bb_Std");
         bbStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("bbStd"));
-        TableColumn cnvRatioCol = new TableColumn("Cnv_Ratio");
-        cnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatio"));
+//        TableColumn cnvRatioCol = new TableColumn("Cnv_Ratio");
+//        cnvRatioCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("cnvRatio"));
         TableColumn covStdCol = new TableColumn("Cov_Std_Col");
         covStdCol.setCellValueFactory(new PropertyValueFactory<DataEntry, Double>("covStd"));
         TableColumn avgDupRatioCol = new TableColumn("Avg_Dup_Ratio");
@@ -249,7 +255,7 @@ public class DataController extends Application {
             });
         }
         table.getColumns().addAll(usernameCol, sampleCol, controlCol, windowIdCol, geneCol,
-                avgCnvRatioCol, bbStdCol, cnvRatioCol, covStdCol, avgDupRatioCol, gcPercCol, alleleFreqCol,
+                avgCnvRatioCol, bbStdCol, covStdCol, avgDupRatioCol, gcPercCol, alleleFreqCol,
                 readStatsCol, isTrainingCol, avgBowtieBwaRatioCol, cnvRatioStdCol, avgCovCol, classifiedCol);
         return table;
     }

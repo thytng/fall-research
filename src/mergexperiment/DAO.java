@@ -23,7 +23,7 @@ public class DAO {
      * @throws ClassNotFoundException
      */
     public static ObservableList<DataEntry> searchEntry(String field, String value) throws SQLException, ClassNotFoundException {
-        String sql = "select * from test_data where " + field + " like '%" + value + "%' order by id LIMIT 15";
+        String sql = "select * from sample_data where " + field + " like '%" + value + "%' order by id LIMIT 15";
         searching = true;
         DAO.field = field;
         DAO.value = value;
@@ -45,7 +45,7 @@ public class DAO {
      * @throws ClassNotFoundException
      */
     public static ObservableList<DataEntry> searchEntries() throws SQLException, ClassNotFoundException {
-        String sql = "select * from test_data order by id LIMIT 15";
+        String sql = "select * from sample_data order by id LIMIT 15";
 
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
@@ -65,6 +65,8 @@ public class DAO {
      */
     private static ObservableList<DataEntry> getEntriesFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
+        int lindex = lastIndex;
+        int findex = firstIndex;
 
         boolean first = true;
         while (rs.next()) {
@@ -83,7 +85,7 @@ public class DAO {
             entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
             entry.setBbStd(rs.getDouble("bb_std"));
-            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
+//            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
             entry.setCovStd(rs.getDouble("cov_std"));
             entry.setGcPerc(rs.getDouble("gc_perc"));
             entry.setHetClassification(rs.getBoolean("het_classification"));
@@ -95,7 +97,13 @@ public class DAO {
             entry.setAvgCov(rs.getDouble("avg_cov"));
             entries.add(entry);
         }
-        return entries;
+        if (entries.size() > 0) {
+            return entries;
+        } else {
+            lastIndex = lindex;
+            firstIndex = findex;
+            return FXCollections.observableArrayList();
+        }
     }
 
     /**
@@ -107,6 +115,8 @@ public class DAO {
      */
     private static ObservableList<DataEntry> getReverseFromResultSet(ResultSet rs) throws SQLException, ClassNotFoundException {
         ObservableList<DataEntry> entries = FXCollections.observableArrayList();
+        int lindex = lastIndex;
+        int findex = firstIndex;
 
         boolean firstSet = true;
         while (rs.next()) {
@@ -120,7 +130,7 @@ public class DAO {
             entry.setAvgCnvRatio(rs.getDouble("avg_cnv_ratio"));
             entry.setAvgDupRatio(rs.getDouble("avg_dup_ratio"));
             entry.setBbStd(rs.getDouble("bb_std"));
-            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
+//            entry.setCnvRatio(rs.getDouble("cnv_ratio"));
             entry.setCovStd(rs.getDouble("cov_std"));
             entry.setGcPerc(rs.getDouble("gc_perc"));
             entry.setHetClassification(rs.getBoolean("het_classification"));
@@ -138,11 +148,18 @@ public class DAO {
             entries.add(0, entry);
             System.out.println(entries.toString());
         }
-        return entries;
+
+        if (entries.size() > 0) {
+            return entries;
+        } else {
+            lastIndex = lindex;
+            firstIndex = findex;
+            return FXCollections.observableArrayList();
+        }
     }
 
     public static void updateEntryStatus (Boolean classification, Integer idNo) throws SQLException, ClassNotFoundException {
-        String sql = "update test_data set het_classification = '" + classification + "' where id = " + idNo;
+        String sql = "update sample_data set het_classification = '" + classification + "' where id = " + idNo;
         try {
             DBUtil.executeUpdate(sql);
         } catch (SQLException | ClassNotFoundException e) {
@@ -182,9 +199,9 @@ public class DAO {
 
         String sql;
         if (!searching) {
-            sql = "select * from test_data where id < " + firstIndex + " order by id desc LIMIT 15;";
+            sql = "select * from sample_data where id < " + firstIndex + " order by id desc LIMIT 15;";
         } else {
-            sql = "select * from test_data where id < " + firstIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id desc LIMIT 15";
+            sql = "select * from sample_data where id < " + firstIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id desc LIMIT 15";
         }
 
         try {
@@ -207,9 +224,9 @@ public class DAO {
 
         String sql;
         if (!searching) {
-            sql = "select * from test_data where id > " + lastIndex + " order by id asc LIMIT 15;";
+            sql = "select * from sample_data where id > " + lastIndex + " order by id asc LIMIT 15;";
         } else {
-            sql = "select * from test_data where id > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id asc LIMIT 15";
+            sql = "select * from sample_data where id > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id asc LIMIT 15";
         }
 
         try {
