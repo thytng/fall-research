@@ -77,10 +77,8 @@ public class LoginController extends Application {
                     DataController mController = new DataController();
                     mController.start(new Stage());
                     stage.close();
-                } catch (SQLException se) {
+                } catch (SQLException | ClassNotFoundException se) {
                     se.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
                 }
             }
         });

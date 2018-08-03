@@ -15,11 +15,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -61,6 +59,9 @@ public class DataController extends Application {
     private BorderPane bottomBar = new BorderPane();
     private Scene compareScene = new Scene(comparePane);
 
+    /**
+     * Structure the display of the main window.
+     */
     public void structureMainTableView() {
         mainTable = createEmptyTable(true);
         currentData = getUpdatedData();
@@ -132,6 +133,9 @@ public class DataController extends Application {
 
     }
 
+    /**
+     * Structure the display and handling of events that enable the user to search for values in the table.
+     */
     public void structureSearchView() {
         choiceBox.getItems().addAll("username", "id", "sample", "control", "gene");
         choiceBox.setValue("username");
@@ -165,6 +169,10 @@ public class DataController extends Application {
         borderPane.setLeft(sideBar);
     }
 
+    /**
+     * Structure the compare window to allow the user to review any changes made to the table before reverting these
+     * changes or committing them to the remote database.
+     */
     public void structureCompareView() {
         comparePane.add(unchangedTable, 0, 0);
         comparePane.add(changedTable, 1, 0);
@@ -181,7 +189,7 @@ public class DataController extends Application {
         compareButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                structureCompareWindow();
+                structureCompareTables();
                 mainTable.setEditable(true);
                 mainTable.setItems(currentData);
                 mainTable.refresh();
@@ -191,7 +199,12 @@ public class DataController extends Application {
         sideBar.add(compareButton, 0, 1);
     }
 
-    private void structureCompareWindow() {
+    /**
+     * Populate two tables reflecting the changes made to the database, showing only entries that were modified.
+     * The data in one table will contain the entries' original state and the data in the other will reflect the
+     * newly made changes.
+     */
+    private void structureCompareTables() {
         getDataChanges();
 
         unchangedTable.setItems(unchangedEntries);
@@ -230,6 +243,14 @@ public class DataController extends Application {
         compareStage.showAndWait();
     }
 
+    /**
+     * Instantiate an empty TaleView with columns and their variable types and hide secondary columns to limit the
+     * amount of information immediately displayed.
+     * @param allowModification Boolean value to indicate whether the user can modify the `het_classification` column.
+     *                          If true, the cells for this column will be represented as a ComboBox for the user to
+     *                          change the classification status of entries.
+     * @return
+     */
     private TableView<DataEntry> createEmptyTable(boolean allowModification) {
         TableView<DataEntry> table = new TableView<>();
         table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
@@ -314,6 +335,11 @@ public class DataController extends Application {
         return table;
     }
 
+    /**
+     * Create an alert window to get the user's confirmation about reverting or committing.
+     * @param commit
+     * @return
+     */
     private Optional<ButtonType> alertCommit(boolean commit) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         String message = commit ? "Commit" : "Revert";
@@ -322,6 +348,11 @@ public class DataController extends Application {
         return alert.showAndWait();
     }
 
+    /**
+     * Compare the changes made in the table with the data as originally loaded.
+     * Create a new list of entries that were changed but the entries themselves will not reflect these changes
+     * to display.
+     */
     private void getDataChanges() {
         currentData = getUpdatedData();
         changedEntries = changedData.filtered(p -> !originalData.contains(p));
@@ -334,6 +365,10 @@ public class DataController extends Application {
         }
     }
 
+    /**
+     * Retrieve the data from the database with any temporary changes.
+     * @return
+     */
     private ObservableList<DataEntry> getUpdatedData() {
         try {
             return DAO.searchEntries();
@@ -365,7 +400,7 @@ public class DataController extends Application {
             public void handle(WindowEvent event) {
                 getDataChanges();
                 if (changedEntries.size() != 0) {
-                    structureCompareWindow();
+                    structureCompareTables();
                 }
                 try {
                     DBUtil.disconnect();

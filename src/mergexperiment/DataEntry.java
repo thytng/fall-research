@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 /**
  * Class representation of an entry in the database. Contains Property variables
- * for all db columns.
+ * for all database columns.
  */
 public class DataEntry {
 
