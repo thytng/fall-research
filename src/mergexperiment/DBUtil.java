@@ -22,7 +22,7 @@ public class DBUtil {
     public static void setDbPass(String pass) { DBUtil.DB_PASS = pass; }
 
     /**
-     * Create new db connection.
+     * Create a new database connection.
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -34,7 +34,8 @@ public class DBUtil {
     }
 
     /**
-     * Return an existing db connection.
+     * Check to see if a database connection is already running and
+     * create a new connection if there isn't.
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -45,7 +46,7 @@ public class DBUtil {
     }
 
     /**
-     * Close existing db connection.
+     * Close the existing database connection.
      * @throws SQLException
      */
     public static void disconnect() throws SQLException {
@@ -55,7 +56,7 @@ public class DBUtil {
     }
 
     /**
-     * Return information about the schema of the data.
+     * Return information about the schema of the database.
      * @return
      * @throws SQLException
      * @throws ClassNotFoundException
@@ -97,7 +98,8 @@ public class DBUtil {
     }
 
     /**
-     * Perform update of pulled db data.
+     * Execute a sql update passed as a String.
+     * Note: Updates are not committed on the database until the `commitChanges` method is called.
      * @param sql
      * @throws SQLException
      * @throws ClassNotFoundException
@@ -119,8 +121,7 @@ public class DBUtil {
     }
 
     /**
-     * Push changes made to the database so that they are reflected in the remote
-     * db.
+     * Push changes made to the database so that they are reflected in the remote database.
      */
     public static void commitChanges() {
         try {
@@ -136,7 +137,7 @@ public class DBUtil {
     }
 
     /**
-     * Undo any changes made to the db.
+     * Undo any changes made to the database.
      */
     public static void revertChanges() {
         try {

@@ -15,8 +15,8 @@ public class DAO {
     private static String value;
 
     /**
-     * Queries entries from the database with some search condition.
-     * @param field The column being used as a condition (i.e. employee number)
+     * Query entries from the database with some search condition.
+     * @param field The column being used as a condition.
      * @param value The search value.
      * @return ObservableList of DataEntry Objects that match the given condition, limited to 15
      * @throws SQLException
@@ -39,8 +39,8 @@ public class DAO {
     }
 
     /**
-     * Queries entries from the database without any conditions.
-     * @return ObservableList of DataEntry Objects, limited to 15
+     * Retrieve 15 entries from the database, ordered by their id number (primary key).
+     * @return ObservableList of DataEntry Objects, limited to 15.
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -57,9 +57,9 @@ public class DAO {
     }
 
     /**
-     * Instantiates DataEntry Objects from a ResultSet, used for Last Page pagination.
+     * Instantiate DataEntry Objects from a ResultSet, used for Last Page pagination.
      * @param rs
-     * @return ObservableList of DataEntry Objects
+     * @return ObservableList of DataEntry Objects.
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -107,7 +107,7 @@ public class DAO {
     }
 
     /**
-     * Instantiates DataEntry Objects from a ResultSet in an inverted order, used for Last Page pagination.
+     * Instantiate DataEntry Objects from a ResultSet in an inverted order, used for Last Page pagination.
      * @param rs
      * @return ObservableList of DataEntry Objects
      * @throws SQLException
@@ -159,6 +159,14 @@ public class DAO {
         }
     }
 
+    /**
+     * Update the status of an entry for a column.
+     * Note: Changes will not be committed to the remote database until the user has specified to do so.
+     * @param id Primary key/id of an entry.
+     * @param status The changed status.
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public static void updateHetClassification (Integer id, Boolean status) throws SQLException, ClassNotFoundException {
         String sql = "update sample_data set het_classification = " + status + " where id = " + id;
         try {
@@ -170,7 +178,7 @@ public class DAO {
     }
 
     /**
-     * Loads the last page of entries.
+     * Load the last page of entries.
      * @return ObservableList of DataEntry Objects.
      * @throws SQLException
      * @throws ClassNotFoundException
@@ -195,7 +203,7 @@ public class DAO {
     }
 
     /**
-     * Loads the next page of entries.
+     * Load the next page of entries.
      * @return ObservableList of DataEntry Objects.
      * @throws SQLException
      * @throws ClassNotFoundException
@@ -208,7 +216,6 @@ public class DAO {
         } else {
             sql = "select * from sample_data where id > " + lastIndex + " and " + DAO.field + " like '%" + DAO.value + "%' order by id asc LIMIT 15";
         }
-
         try {
             ResultSet rs = DBUtil.executeQuery(sql);
             return getEntriesFromResultSet(rs);
