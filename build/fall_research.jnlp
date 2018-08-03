@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="fall_research.jnlp">
+  <information>
+    <title>GeneticsPrototype</title>
+    <vendor>Unknown</vendor>
+    <description>Application for working with database data</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="fall_research.jar" size="28851" download="eager" />
+    <jar href="mysql-connector-java-8.0.11.jar" size="2036609" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="600" height="400" main-class="mergexperiment.LoginController"  name="GeneticsPrototype" />
+  <update check="background"/>
+</jnlp>
